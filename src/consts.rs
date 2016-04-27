@@ -15,7 +15,6 @@ pub const EOL: &'static str = "\n";
 
 /**
  * [FEED_CONTROL_SEQUENCES Feed control sequences]
- * @type {Object}
  */
   // .FEED_CONTROL_SEQUENCES
 pub const CTL_LF: &'static str = "\x0a";   // Print and line feed
@@ -30,7 +29,6 @@ pub const LS_SET: &'static str = "\x1b\x33";
 
 /**
  * [HARDWARE Printer hardware]
- * @type {Object}
  */
   // .HARDWARE
 pub const HW_INIT: &'static str = "\x1b\x40"; // Clear data in buffer and reset modes
@@ -39,7 +37,6 @@ pub const HW_RESET: &'static str = "\x1b\x3f\x0a\x00"; // Reset printer hardware
 
 /**
  * [CASH_DRAWER Cash Drawer]
- * @type {Object}
  */
   // .CASH_DRAWER
 pub const CD_KICK_2: &'static str = "\x1b\x70\x00"; // Sends a pulse to pin 2 []
@@ -47,7 +44,6 @@ pub const CD_KICK_5: &'static str = "\x1b\x70\x01"; // Sends a pulse to pin 5 []
 
 /**
  * [PAPER Paper]
- * @type {Object}
  */
   // .PAPER
 pub const PAPER_FULL_CUT: &'static str = "\x1d\x56\x00"; // Full cut paper
@@ -57,7 +53,6 @@ pub const PAPER_CUT_B: &'static str = "\x1d\x56\x42"; // Partial cut paper
 
 /**
  * [TEXT_FORMAT Text format]
- * @type {Object}
  */
   // .TEXT_FORMAT
 pub const TXT_NORMAL: &'static str = "\x1b\x21\x00"; // Normal text
@@ -80,7 +75,6 @@ pub const TXT_ALIGN_RT: &'static str = "\x1b\x61\x02"; // Right justification
 
 /**
  * [BARCODE_FORMAT Barcode format]
- * @type {Object}
  */
   // .BARCODE_FORMAT
 pub const BARCODE_TXT_OFF: &'static str = "\x1d\x48\x00"; // HRI barcode chars OFF
@@ -116,7 +110,6 @@ pub const QR_LEVEL_H: &'static str = "H"; // correct level 30%
 
 /**
  * [IMAGE_FORMAT Image format]
- * @type {Object}
  */
   // .IMAGE_FORMAT
 pub const S_RASTER_N: &'static str = "\x1d\x76\x30\x00"; // Set raster image normal size
