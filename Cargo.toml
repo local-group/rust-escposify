@@ -1,0 +1,6 @@
+[package]
+name = "escposify"
+version = "0.1.0"
+authors = ["Qian Linfeng <thewawar@gmail.com>"]
+
+[dependencies]
