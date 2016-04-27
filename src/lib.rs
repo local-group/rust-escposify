@@ -1,17 +1,10 @@
 
 pub mod consts;
-
-use consts::{EOL};
-
-pub fn func() {}
+pub mod printer;
 
 
 #[cfg(test)]
 mod tests {
-    use super::func;
-
     #[test]
-    fn it_works() {
-        func();
-    }
+    fn it_works() {}
 }
