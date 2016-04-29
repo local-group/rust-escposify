@@ -1,7 +1,12 @@
 [package]
 name = "escposify"
 version = "0.1.0"
+description = "A ESC/POS driver for Rust"
+readme = "README.md"
+repository = "https://github.com/local-group/escposify-rs"
+license = "MIT"
 authors = ["Qian Linfeng <thewawar@gmail.com>"]
+
 
 [dependencies]
 encoding = "0.2.32"
