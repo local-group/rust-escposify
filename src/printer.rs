@@ -51,39 +51,39 @@ impl<W: io::Write> Printer<W> {
         self.writer.flush()
     }
 
-    pub fn hwinit(&mut self) -> &Printer<W> {
+    pub fn hwinit(&mut self) -> &mut Printer<W> {
         let _ = self.write(consts::HW_INIT);
         self
     }
 
-    pub fn hwselect(&mut self) -> &Printer<W> {
+    pub fn hwselect(&mut self) -> &mut Printer<W> {
         let _ = self.write(consts::HW_SELECT);
         self
     }
 
-    pub fn hwreset(&mut self) -> &Printer<W> {
+    pub fn hwreset(&mut self) -> &mut Printer<W> {
         let _ = self.write(consts::HW_RESET);
         self
     }
 
-    pub fn print(&mut self, content: &str) -> &Printer<W> {
+    pub fn print(&mut self, content: &str) -> &mut Printer<W> {
         // let rv = self.encode(content);
         let rv = self.encode(content);
         let _ = self.write(rv.as_slice());
         self
     }
 
-    pub fn println(&mut self, content: &str) -> &Printer<W> {
+    pub fn println(&mut self, content: &str) -> &mut Printer<W> {
         self.print(format!("{}{}", content, consts::EOL).as_ref());
         self
     }
 
-    pub fn text(&mut self, content: &str) -> &Printer<W> {
+    pub fn text(&mut self, content: &str) -> &mut Printer<W> {
         self.println(content);
         self
     }
 
-    pub fn line_space(&mut self, n: Option<i32>) -> &Printer<W> {
+    pub fn line_space(&mut self, n: Option<i32>) -> &mut Printer<W> {
         match n {
             Some(v) => {
                 let _ = self.write(consts::LS_SET);
@@ -96,7 +96,7 @@ impl<W: io::Write> Printer<W> {
         self
     }
 
-    pub fn feed(&mut self, n: usize) -> &Printer<W> {
+    pub fn feed(&mut self, n: usize) -> &mut Printer<W> {
         let _ = self.write(iter::repeat(consts::EOL)
                            .take(n)
                            .collect::<String>()
@@ -104,7 +104,7 @@ impl<W: io::Write> Printer<W> {
         self
     }
 
-    pub fn control(&mut self, ctrl: &str) -> &Printer<W> {
+    pub fn control(&mut self, ctrl: &str) -> &mut Printer<W> {
         let ctrl_upper = ctrl.to_uppercase();
         let ctrl_value = match ctrl_upper.as_ref() {
             "LF" => consts::CTL_LF,
@@ -118,7 +118,7 @@ impl<W: io::Write> Printer<W> {
         self
     }
 
-    pub fn align(&mut self, alignment: &str) -> &Printer<W> {
+    pub fn align(&mut self, alignment: &str) -> &mut Printer<W> {
         let align_upper = alignment.to_uppercase();
         let align_value = match align_upper.as_ref() {
             "LT" => consts::TXT_ALIGN_LT,
@@ -130,7 +130,7 @@ impl<W: io::Write> Printer<W> {
         self
     }
 
-    pub fn font(&mut self, family: &str) -> &Printer<W> {
+    pub fn font(&mut self, family: &str) -> &mut Printer<W> {
         let family_upper = family.to_uppercase();
         let family_value = match family_upper.as_ref() {
             "A" => consts::TXT_FONT_A,
@@ -142,7 +142,7 @@ impl<W: io::Write> Printer<W> {
         self
     }
 
-    pub fn style(&mut self, kind: &str) -> &Printer<W> {
+    pub fn style(&mut self, kind: &str) -> &mut Printer<W> {
         let kind_upper = kind.to_lowercase();
         match kind_upper.as_ref() {
             "B" => {
@@ -173,7 +173,7 @@ impl<W: io::Write> Printer<W> {
         self
     }
 
-    pub fn size(&mut self, width: usize, height: usize) -> &Printer<W> {
+    pub fn size(&mut self, width: usize, height: usize) -> &mut Printer<W> {
         let _ = self.write(consts::TXT_NORMAL);
         if width == 2 {
             let _ = self.write(consts::TXT_2WIDTH);
@@ -184,7 +184,7 @@ impl<W: io::Write> Printer<W> {
         self
     }
 
-    pub fn hardware(&mut self, hw: &str) -> &Printer<W> {
+    pub fn hardware(&mut self, hw: &str) -> &mut Printer<W> {
         let value = match hw {
             "INIT" => consts::HW_INIT,
             "SELECT" => consts::HW_SELECT,
@@ -197,7 +197,7 @@ impl<W: io::Write> Printer<W> {
 
     pub fn barcode(&mut self,
                    code: &str, kind: &str, position: &str, font: &str,
-                   width: usize, height: usize) -> &Printer<W> {
+                   width: usize, height: usize) -> &mut Printer<W> {
         if width >= 1 || width <= 255 {
             let _ = self.write(consts::BARCODE_WIDTH);
         }
@@ -234,7 +234,7 @@ impl<W: io::Write> Printer<W> {
         self
     }
 
-    pub fn qrcode(&mut self, code: &str, version: Option<i32>, level: &str, size: Option<i32>) -> &Printer<W> {
+    pub fn qrcode(&mut self, code: &str, version: Option<i32>, level: &str, size: Option<i32>) -> &mut Printer<W> {
         let level = level.to_uppercase();
         let level_value = match level.as_ref() {
             "M" => consts::QR_LEVEL_M,
@@ -252,7 +252,7 @@ impl<W: io::Write> Printer<W> {
         self
     }
 
-    pub fn cashdraw(&mut self, pin: Option<i32>) -> &Printer<W> {
+    pub fn cashdraw(&mut self, pin: Option<i32>) -> &mut Printer<W> {
         let pin_value = match pin {
             Some(5) => consts::CD_KICK_5,
             Some(2) | _ => consts::CD_KICK_2,
@@ -261,7 +261,7 @@ impl<W: io::Write> Printer<W> {
         self
     }
 
-    pub fn cut(&mut self, part: bool) -> &Printer<W> {
+    pub fn cut(&mut self, part: bool) -> &mut Printer<W> {
         self.print(iter::repeat(consts::EOL)
                    .take(3)
                    .collect::<String>()
@@ -275,22 +275,24 @@ impl<W: io::Write> Printer<W> {
         self
     }
 
-    pub fn bitimage(&mut self, image: u8, density: Option<&str>) -> &Printer<W> {
+    pub fn bitimage(&mut self, image: u8, density: Option<&str>) -> &mut Printer<W> {
+        let _ = image;
         let density = density.unwrap_or("d24");
         let density_upper = density.to_uppercase();
-        let header = match density_upper.as_ref() {
+        let _ = match density_upper.as_ref() {
             "S8"  => consts::BITMAP_S8,
             "D8"  => consts::BITMAP_D8,
             "S24" => consts::BITMAP_S24,
             "D24" | _ => consts::BITMAP_D24,
         };
-        let n = if density == "s8" || density == "d8" { 1 } else { 3 };
+        let _ = if density == "s8" || density == "d8" { 1 } else { 3 };
         self
     }
 
-    pub fn raster(&mut self, image: u8, mode: Option<&str>) -> &Printer<W> {
+    pub fn raster(&mut self, image: u8, mode: Option<&str>) -> &mut Printer<W> {
+        let _ = image;
         let mode = mode.unwrap_or("normal");
-        let mode = match mode {
+        let _ = match mode {
             "dhdw" | "dwh" | "dhw" => "dwdh",
             v => v
         };
