@@ -7,3 +7,4 @@ authors = ["Qian Linfeng <thewawar@gmail.com>"]
 encoding = "0.2.32"
 byteorder = "0.5.1"
 image = "0.9.0"
+tempfile = "2.1.3"

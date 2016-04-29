@@ -1,8 +1,7 @@
-
-
 extern crate encoding;
 extern crate byteorder;
 extern crate image;
+extern crate tempfile;
 
 pub mod consts;
 pub mod printer;
@@ -13,10 +12,12 @@ pub mod device;
 mod tests {
     use printer::{Printer};
     use device::{File};
+    use tempfile::{NamedTempFile};
 
     #[test]
     fn simple() {
-        let mut printer = Printer::new(File::new("/tmp/test.printer"), None, None);
+        let mut printer = Printer::new(
+            File::<NamedTempFile>::from_temp(), None, None);
         let _ = printer
             .font("C")
             .align("lt")
