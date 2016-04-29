@@ -19,7 +19,9 @@ pub struct Printer<W: io::Write> {
 
 
 impl<W: io::Write> Printer<W> {
-    pub fn new(writer: W, codec: Option<EncodingRef>, trap: Option<EncoderTrap>) -> Printer<W> {
+    pub fn new(writer: W,
+               codec: Option<EncodingRef>,
+               trap: Option<EncoderTrap>) -> Printer<W> {
         Printer{
             writer: io::BufWriter::new(writer),
             codec: codec.unwrap_or(UTF_8 as EncodingRef),
@@ -196,7 +198,10 @@ impl<W: io::Write> Printer<W> {
     }
 
     pub fn barcode(&mut self,
-                   code: &str, kind: &str, position: &str, font: &str,
+                   code: &str,
+                   kind: &str,
+                   position: &str,
+                   font: &str,
                    width: usize, height: usize) -> &mut Printer<W> {
         if width >= 1 || width <= 255 {
             let _ = self.write(consts::BARCODE_WIDTH);
@@ -234,7 +239,11 @@ impl<W: io::Write> Printer<W> {
         self
     }
 
-    pub fn qrcode(&mut self, code: &str, version: Option<i32>, level: &str, size: Option<i32>) -> &mut Printer<W> {
+    pub fn qrcode(&mut self,
+                  code: &str,
+                  version: Option<i32>,
+                  level: &str,
+                  size: Option<i32>) -> &mut Printer<W> {
         let level = level.to_uppercase();
         let level_value = match level.as_ref() {
             "M" => consts::QR_LEVEL_M,
@@ -275,7 +284,9 @@ impl<W: io::Write> Printer<W> {
         self
     }
 
-    pub fn bitimage(&mut self, image: u8, density: Option<&str>) -> &mut Printer<W> {
+    pub fn bitimage(&mut self,
+                    image: u8,
+                    density: Option<&str>) -> &mut Printer<W> {
         let _ = image;
         let density = density.unwrap_or("d24");
         let density_upper = density.to_uppercase();

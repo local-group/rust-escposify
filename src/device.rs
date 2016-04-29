@@ -58,7 +58,7 @@ impl <W: io::Write> File<W> {
         let fobj = NamedTempFileOptions::new()
             .create()
             .unwrap();
-        File{_path: "{tmp file}".to_string(), fobj: fobj}
+        File{_path: fobj.path().to_str().unwrap().to_string(), fobj: fobj}
     }
 }
 
