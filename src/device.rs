@@ -1,6 +1,7 @@
 
 use std::io;
 use std::fs;
+use std::path;
 use std::net;
 
 
@@ -43,11 +44,11 @@ pub struct File<W> {
 }
 
 impl <W: io::Write> File<W> {
-    pub fn new(path: &str) -> File<fs::File> {
+    pub fn new<P: AsRef<path::Path> + ToString>(path: P) -> File<fs::File> {
         let fobj = fs::OpenOptions::new()
             .write(true)
             .create(true)
-            .open(path)
+            .open(&path)
             .unwrap();
         File{_path: path.to_string(), fobj: fobj}
     }
