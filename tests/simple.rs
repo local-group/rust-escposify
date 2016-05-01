@@ -1,12 +1,14 @@
-extern crate escposify;
+
 extern crate tempfile;
 
-use escposify::printer::Printer;
-use escposify::device::File;
+extern crate escposify;
 
+use escposify::printer::{Printer};
+use escposify::device::{File};
 use tempfile::{NamedTempFileOptions};
 
-fn main() {
+#[test]
+fn simple() {
     let tempf = NamedTempFileOptions::new()
         .create()
         .unwrap();

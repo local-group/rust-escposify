@@ -3,8 +3,6 @@ use std::io;
 use std::fs;
 use std::net;
 
-use tempfile::{NamedTempFile, NamedTempFileOptions};
-
 
 pub struct Usb {}
 pub struct Serial {}
@@ -54,11 +52,8 @@ impl <W: io::Write> File<W> {
         File{_path: path.to_string(), fobj: fobj}
     }
 
-    pub fn from_temp() -> File<NamedTempFile> {
-        let fobj = NamedTempFileOptions::new()
-            .create()
-            .unwrap();
-        File{_path: fobj.path().to_str().unwrap().to_string(), fobj: fobj}
+    pub fn from(path: &str, fobj: W) -> File<W>{
+        File{_path: path.to_string(), fobj: fobj}
     }
 }
 

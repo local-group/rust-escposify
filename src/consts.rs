@@ -118,10 +118,10 @@ pub const S_RASTER_2H: &'static [u8] = b"\x1d\x76\x30\x02"; // Set raster image 
 pub const S_RASTER_Q: &'static [u8]  = b"\x1d\x76\x30\x03"; // Set raster image quadruple
 
   // .BITMAP_FORMAT
-pub const BITMAP_S8: &'static [u8]  = b"\x1b\x2a\x00";
-pub const BITMAP_D8: &'static [u8]  = b"\x1b\x2a\x01";
-pub const BITMAP_S24: &'static [u8] = b"\x1b\x2a\x20";
-pub const BITMAP_D24: &'static [u8] = b"\x1b\x2a\x21";
+pub const BITMAP_S8: &'static [u8]  = b"\x1b\x2a\x00"; // 0 : 8 dots single density,102dpi
+pub const BITMAP_D8: &'static [u8]  = b"\x1b\x2a\x01"; // 1 : 8 dots double density,203dpi
+pub const BITMAP_S24: &'static [u8] = b"\x1b\x2a\x20"; // 31: 24 dots single density,102dpi
+pub const BITMAP_D24: &'static [u8] = b"\x1b\x2a\x21"; // 32: 24 dots double density,203dpi
 
   // .GSV0_FORMAT
 pub const GSV0_NORMAL: &'static [u8] = b"\x1d\x76\x30\x00";
