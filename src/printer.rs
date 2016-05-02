@@ -1,5 +1,4 @@
 
-// use std::error::{Error};
 use std::iter;
 use std::io::{Write};
 use std::io;
@@ -235,6 +234,10 @@ impl<W: io::Write> Printer<W> {
         let _ = self.write(txt_value);
         let _ = self.write(kind_value);
         let _ = self.write(code.as_bytes());
+        self
+    }
+
+    pub fn qrimage(&mut self) -> &mut Printer<W> {
         self
     }
 

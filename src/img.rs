@@ -1,13 +1,13 @@
 
 use std::path;
 use std::iter::Iterator;
+use qrcode::QrCode;
 
 use image;
-use image::{DynamicImage, GenericImage};
+use image::{ImageBuffer, DynamicImage, GenericImage};
 
 
 pub struct Image {
-    // _path: String,
     pub width: u32,
     pub height: u32,
     img_buf: DynamicImage,
@@ -18,7 +18,6 @@ impl Image {
         let img_buf = image::open(&path).unwrap();
         let (width, height) = img_buf.dimensions();
         Image {
-            // _path: path.to_string(),
             width: width,
             height: height,
             img_buf: img_buf
@@ -28,10 +27,34 @@ impl Image {
     pub fn from(img_buf: DynamicImage) -> Image {
         let (width, height) = img_buf.dimensions();
         Image {
-            // _path: "tmp".to_string(),
             width: width,
             height: height,
             img_buf: img_buf
+        }
+    }
+
+    pub fn from_qr(code: &str, width: u32) -> Image {
+        let code = QrCode::new(code.as_bytes()).unwrap();
+        let code_width = code.width();
+        let point_width = width / (code_width as u32 + 2);
+        let quite_width = (width % (code_width as u32 + 2)) / 2 + point_width;
+        let img_buf = ImageBuffer::from_fn(width, width, |x, y| {
+            let is_white =  x < quite_width || y < quite_width
+                || x >= (width - quite_width) || y >= (width - quite_width)
+                || !code[(
+                    ((x-quite_width) / point_width) as usize,
+                    ((y-quite_width) / point_width) as usize
+                )];
+            if is_white {
+                image::Rgb([0, 0, 0])
+            } else {
+                image::Rgb([0xFF, 0xFF, 0xFF])
+            }
+        });
+        Image {
+            width: width,
+            height: width,
+            img_buf: DynamicImage::ImageRgb8(img_buf)
         }
     }
 
@@ -66,7 +89,7 @@ impl Image {
                 // println!("x={}, b={}, i={}, b>>8={}", x, b, i, b>>3);
                 let l = y * density + b;
                 if l < self.height && !self.is_blank_pixel(x, l) {
-                    data[i as usize] += 0x80>>(b & 0x07);
+                    data[i as usize] += 0x80 >> (b & 0x07);
                 }
             }
         }
