@@ -9,6 +9,7 @@ use encoding::all::{UTF_8};
 use byteorder::{LittleEndian, WriteBytesExt};
 
 use consts;
+use img::{Image};
 
 
 pub struct Printer<W: io::Write> {
@@ -85,20 +86,18 @@ impl<W: io::Write> Printer<W> {
         self
     }
 
-    pub fn line_space(&mut self, n: Option<i32>) -> &mut Printer<W> {
-        match n {
-            Some(v) => {
-                let _ = self.write(consts::LS_SET);
-                let _ = self.write_u8(v as u8);
-            }
-            None => {
-                let _ = self.write(consts::LS_DEFAULT);
-            }
-        };
+    pub fn line_space(&mut self, n: i32) -> &mut Printer<W> {
+        if n >= 0 {
+            let _ = self.write(consts::LS_SET);
+            let _ = self.write_u8(n as u8);
+        } else {
+            let _ = self.write(consts::LS_DEFAULT);
+        }
         self
     }
 
     pub fn feed(&mut self, n: usize) -> &mut Printer<W> {
+        let n = if n < 1 { 1 } else { n };
         let _ = self.write(iter::repeat(consts::EOL)
                            .take(n)
                            .collect::<String>()
@@ -261,10 +260,11 @@ impl<W: io::Write> Printer<W> {
         self
     }
 
-    pub fn cashdraw(&mut self, pin: Option<i32>) -> &mut Printer<W> {
-        let pin_value = match pin {
-            Some(5) => consts::CD_KICK_5,
-            Some(2) | _ => consts::CD_KICK_2,
+    pub fn cashdraw(&mut self, pin: i32) -> &mut Printer<W> {
+        let pin_value = if pin == 5 {
+            consts::CD_KICK_5
+        } else {
+            consts::CD_KICK_2
         };
         let _ = self.write(pin_value);
         self
@@ -284,23 +284,30 @@ impl<W: io::Write> Printer<W> {
         self
     }
 
-    pub fn bitimage(&mut self,
-                    image: u8,
+    pub fn bit_image(&mut self,
+                    image: &Image,
                     density: Option<&str>) -> &mut Printer<W> {
         let _ = image;
         let density = density.unwrap_or("d24");
         let density_upper = density.to_uppercase();
-        let _ = match density_upper.as_ref() {
+        let header = match density_upper.as_ref() {
             "S8"  => consts::BITMAP_S8,
             "D8"  => consts::BITMAP_D8,
             "S24" => consts::BITMAP_S24,
             "D24" | _ => consts::BITMAP_D24,
         };
-        let _ = if density == "s8" || density == "d8" { 1 } else { 3 };
+        let n = if density == "s8" || density == "d8" { 1 } else { 3 };
+        self.line_space(0);
+        for line in image.bitmap_lines(n*8) {
+            let _ = self.write(header);
+            let _ = self.write_u16le((line.len() / n as usize) as u16);
+            let _ = self.write(line.as_ref());
+            self.feed(1);
+        }
         self
     }
 
-    pub fn raster(&mut self, image: u8, mode: Option<&str>) -> &mut Printer<W> {
+    pub fn raster(&mut self, image: &Image, mode: Option<&str>) -> &mut Printer<W> {
         let _ = image;
         let mode = mode.unwrap_or("normal");
         let _ = match mode {
