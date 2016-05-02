@@ -11,8 +11,8 @@ fn main() {
         .create()
         .unwrap();
     let temp_path = tempf.path().to_str().unwrap().to_owned();
-    let file = File::from(
-        temp_path.as_str(), tempf);
+
+    let file = File::from(temp_path.as_str(), tempf);
     let mut printer = Printer::new(file, None, None);
 
     let _ = printer
