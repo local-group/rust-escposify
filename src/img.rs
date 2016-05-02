@@ -46,9 +46,9 @@ impl Image {
                     ((y-quite_width) / point_width) as usize
                 )];
             if is_white {
-                image::Rgb([0, 0, 0])
-            } else {
                 image::Rgb([0xFF, 0xFF, 0xFF])
+            } else {
+                image::Rgb([0, 0, 0])
             }
         });
         Image {
