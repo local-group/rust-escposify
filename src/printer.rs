@@ -287,7 +287,6 @@ impl<W: io::Write> Printer<W> {
     pub fn bit_image(&mut self,
                     image: &Image,
                     density: Option<&str>) -> &mut Printer<W> {
-        let _ = image;
         let density = density.unwrap_or("d24");
         let density_upper = density.to_uppercase();
         let header = match density_upper.as_ref() {
@@ -308,12 +307,17 @@ impl<W: io::Write> Printer<W> {
     }
 
     pub fn raster(&mut self, image: &Image, mode: Option<&str>) -> &mut Printer<W> {
-        let _ = image;
-        let mode = mode.unwrap_or("normal");
-        let _ = match mode {
-            "dhdw" | "dwh" | "dhw" => "dwdh",
-            v => v
+        let mode_upper = mode.unwrap_or("NORMAL").to_uppercase();
+        let header = match mode_upper.as_ref() {
+            "DW" => consts::GSV0_DW,
+            "DH" => consts::GSV0_DH,
+            "DWDH" => consts::GSV0_DWDH,
+            "NORMAL" | _ => consts::GSV0_DW,
         };
+        let _ = self.write(header);
+        let _ = self.write_u16le(image.width as u16);
+        let _ = self.write_u16le(image.height as u16);
+        let _ = self.write(image.get_raster().as_ref());
         self
     }
 }
