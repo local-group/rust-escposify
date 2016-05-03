@@ -35,9 +35,10 @@ impl Image {
 
     pub fn from_qr(code: &str, width: u32) -> Image {
         let code = QrCode::new(code.as_bytes()).unwrap();
-        let code_width = code.width();
-        let point_width = width / (code_width as u32 + 2);
-        let quite_width = (width % (code_width as u32 + 2)) / 2 + point_width;
+        let code_width = code.width() as u32;
+        let point_width = width / (code_width + 2);
+        // QR code quite zone width
+        let quite_width = (width % (code_width + 2)) / 2 + point_width;
         let img_buf = ImageBuffer::from_fn(width, width, |x, y| {
             let is_white =  x < quite_width || y < quite_width
                 || x >= (width - quite_width) || y >= (width - quite_width)
