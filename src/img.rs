@@ -68,8 +68,8 @@ impl Image {
         }
     }
 
-    pub fn bitmap_lines(&self, density: u32) -> BitmapLines {
-        BitmapLines {line: 0, density: density, image: self}
+    pub fn bitimage_lines(&self, density: u32) -> BitimageLines {
+        BitimageLines {line: 0, density: density, image: self}
     }
 
     fn get_line(&self, num: u32, density: u32) -> Option<Box<[u8]>> {
@@ -114,13 +114,13 @@ impl Image {
 }
 
 
-pub struct BitmapLines<'a>{
+pub struct BitimageLines<'a>{
     line: u32,
     density: u32,
     image: &'a Image,
 }
 
-impl<'a> Iterator for BitmapLines<'a> {
+impl<'a> Iterator for BitimageLines<'a> {
     type Item = Box<[u8]>;
 
     fn next(&mut self) -> Option<Box<[u8]>> {

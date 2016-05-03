@@ -300,7 +300,7 @@ impl<W: io::Write> Printer<W> {
         };
         let n = if density == "s8" || density == "d8" { 1 } else { 3 };
         self.line_space(0);
-        for line in image.bitmap_lines(n*8) {
+        for line in image.bitimage_lines(n*8) {
             let _ = self.write(header);
             let _ = self.write_u16le((line.len() / n as usize) as u16);
             let _ = self.write(line.as_ref());
