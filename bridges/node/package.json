@@ -1,0 +1,18 @@
+{
+  "name": "node",
+  "version": "0.1.0",
+  "description": "Node bridge for escposify-rs",
+  "main": "lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/local-group/escposify-rs"
+  },
+  "author": "Qian Linfeng <thewawar@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "neon-cli": "^0.1.7"
+  },
+  "scripts": {
+    "install": "neon build"
+  }
+}

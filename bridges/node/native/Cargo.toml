@@ -1,0 +1,12 @@
+[package]
+name = "node"
+version = "0.1.0"
+authors = ["Qian Linfeng <thewawar@gmail.com>"]
+license = "MIT"
+
+[lib]
+name = "node"
+crate-type = ["dylib"]
+
+[dependencies]
+neon = "0.1"
