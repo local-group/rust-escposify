@@ -312,10 +312,9 @@ impl<W: io::Write> Printer<W> {
     pub fn raster(&mut self, image: &Image, mode: Option<&str>) -> &mut Printer<W> {
         let mode_upper = mode.unwrap_or("NORMAL").to_uppercase();
         let header = match mode_upper.as_ref() {
-            "DW" => consts::GSV0_DW,
             "DH" => consts::GSV0_DH,
             "DWDH" => consts::GSV0_DWDH,
-            "NORMAL" | _ => consts::GSV0_DW,
+            "DW" | "NORMAL" | _ => consts::GSV0_DW,
         };
         let _ = self.write(header);
         let _ = self.write_u16le(image.width as u16);

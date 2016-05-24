@@ -14,7 +14,7 @@ pub const EOL: &'static str = "\n";
 // const EOT: &'static [u8] = b"\x04";
 
 /**
- * [FEED_CONTROL_SEQUENCES Feed control sequences]
+ * [`FEED_CONTROL_SEQUENCES` Feed control sequences]
  */
   // .FEED_CONTROL_SEQUENCES
 pub const CTL_LF: &'static [u8] = b"\x0a"; // Print and line feed
@@ -28,7 +28,7 @@ pub const LS_DEFAULT: &'static [u8] = b"\x1b\x32";
 pub const LS_SET: &'static [u8]     = b"\x1b\x33";
 
 /**
- * [HARDWARE Printer hardware]
+ * [`HARDWARE` Printer hardware]
  */
   // .HARDWARE
 pub const HW_INIT: &'static [u8]   = b"\x1b\x40"; // Clear data in buffer and reset modes
@@ -36,14 +36,14 @@ pub const HW_SELECT: &'static [u8] = b"\x1b\x3d\x01"; // Printer select
 pub const HW_RESET: &'static [u8]  = b"\x1b\x3f\x0a\x00"; // Reset printer hardware
 
 /**
- * [CASH_DRAWER Cash Drawer]
+ * [`CASH_DRAWER` Cash Drawer]
  */
   // .CASH_DRAWER
 pub const CD_KICK_2: &'static [u8] = b"\x1b\x70\x00"; // Sends a pulse to pin 2 []
 pub const CD_KICK_5: &'static [u8] = b"\x1b\x70\x01"; // Sends a pulse to pin 5 []
 
 /**
- * [PAPER Paper]
+ * [`PAPER` Paper]
  */
   // .PAPER
 pub const PAPER_FULL_CUT: &'static [u8] = b"\x1d\x56\x00"; // Full cut paper
@@ -52,7 +52,7 @@ pub const PAPER_CUT_A: &'static [u8]    = b"\x1d\x56\x41"; // Partial cut paper
 pub const PAPER_CUT_B: &'static [u8]    = b"\x1d\x56\x42"; // Partial cut paper
 
 /**
- * [TEXT_FORMAT Text format]
+ * [`TEXT_FORMAT` Text format]
  */
   // .TEXT_FORMAT
 pub const TXT_NORMAL: &'static [u8]  = b"\x1b\x21\x00"; // Normal text
@@ -74,7 +74,7 @@ pub const TXT_ALIGN_CT: &'static [u8] = b"\x1b\x61\x01"; // Centering
 pub const TXT_ALIGN_RT: &'static [u8] = b"\x1b\x61\x02"; // Right justification
 
 /**
- * [BARCODE_FORMAT Barcode format]
+ * [`BARCODE_FORMAT` Barcode format]
  */
   // .BARCODE_FORMAT
 pub const BARCODE_TXT_OFF: &'static [u8] = b"\x1d\x48\x00"; // HRI barcode chars OFF
@@ -109,7 +109,7 @@ pub const QR_LEVEL_Q: &'static [u8] = b"Q"; // correct level 25%
 pub const QR_LEVEL_H: &'static [u8] = b"H"; // correct level 30%
 
 /**
- * [IMAGE_FORMAT Image format]
+ * [`IMAGE_FORMAT` Image format]
  */
   // .IMAGE_FORMAT
 pub const S_RASTER_N: &'static [u8]  = b"\x1d\x76\x30\x00"; // Set raster image normal size

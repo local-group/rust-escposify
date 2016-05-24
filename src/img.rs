@@ -62,11 +62,7 @@ impl Image {
     pub fn is_blank_pixel(&self, x: u32, y: u32) -> bool {
         let pixel = self.img_buf.get_pixel(x, y);
         // full transprant OR is white
-        if pixel[3] == 0 || (pixel[0] & pixel[1] & pixel[2]) == 0xFF {
-            true
-        } else {
-            false
-        }
+        pixel[3] == 0 || (pixel[0] & pixel[1] & pixel[2]) == 0xFF
     }
 
     pub fn bitimage_lines(&self, density: u32) -> BitimageLines {
