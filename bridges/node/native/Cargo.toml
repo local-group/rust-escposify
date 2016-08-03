@@ -10,3 +10,4 @@ crate-type = ["dylib"]
 
 [dependencies]
 neon = "0.1"
+escposify = {path = "../../../"}

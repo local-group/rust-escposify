@@ -1,15 +1,24 @@
 #[macro_use]
 extern crate neon;
+extern crate escposify;
 
 use neon::vm::{Call, JsResult, Module};
-use neon::js::JsString;
+use neon::js::{JsString, JsUndefined};
 
-fn hello(call: Call) -> JsResult<JsString> {
-    println!("env={}", env!("NEON_NODE_ABI"));
+use escposify::printer::Printer;
+use escposify::device::File;
+use escposify::device::Network;
+
+
+fn print(call: Call) -> JsResult<JsUndefined> {
     let scope = call.scope;
-    Ok(JsString::new(scope, "hello node").unwrap())
+    let arguments = call.arguments;
+    Ok(JsUndefined::new())
+    // println!("arguments = {:?}", arguments.get(scope, 0).unwrap());
 }
 
+
 register_module!(m, {
-    m.export("hello", hello)
+    try!(m.export("print", print));
+    Ok(())
 });
