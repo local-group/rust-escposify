@@ -4,7 +4,7 @@ version = "0.1.3"
 description = "A ESC/POS driver for Rust"
 readme = "README.md"
 keywords = ["ESC", "POS", "printer", "driver"]
-repository = "https://github.com/local-group/escposify-rs"
+repository = "https://github.com/local-group/rust-escposify"
 license = "MIT"
 authors = ["Qian Linfeng <thewawar@gmail.com>"]
 
