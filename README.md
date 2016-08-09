@@ -1,6 +1,8 @@
 # escposify-rs
 A ESC/POS driver for Rust
 
+[Documentation](http://dl.ahorn.me/rust-doc/escposify/escposify/)
+
 # Examples
 
 ## Rust
