@@ -143,7 +143,7 @@ impl<W: io::Write> Printer<W> {
     }
 
     pub fn style(&mut self, kind: &str) -> &mut Printer<W> {
-        let kind_upper = kind.to_lowercase();
+        let kind_upper = kind.to_uppercase();
         match kind_upper.as_ref() {
             "B" => {
                 let _ = self.write(consts::TXT_UNDERL_OFF);
