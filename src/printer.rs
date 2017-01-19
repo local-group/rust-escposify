@@ -38,7 +38,7 @@ impl<W: io::Write> Printer<W> {
         self.writer.write(buf)
     }
 
-    fn write_u8(&mut self, n: u8) -> io::Result<usize> {
+    pub fn write_u8(&mut self, n: u8) -> io::Result<usize> {
         self.write(vec!(n).as_slice())
     }
 
