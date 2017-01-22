@@ -13,7 +13,7 @@ authors = ["Qian Linfeng <thewawar@gmail.com>"]
 [dependencies]
 encoding = "0.2.32"
 byteorder = "0.5.1"
-image = "0.9.0"
+image = "0.12"
 qrcode = "0.1.7"
 
 [dev-dependencies]
