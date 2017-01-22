@@ -3,6 +3,17 @@ A ESC/POS driver for Rust
 
 [Documentation](http://dl.ahorn.me/rust-doc/escposify/escposify/)
 
+Most ESC/POS Printers will appear as a file. To print to the device, open a file to the location and pass this to the ```File::from``` function.
+
+To enable this in Windows, install the printer and its driver. Share the printer and specifiy a name for it (Receipt Printer in this case). The printer will then be accessable via ```\\%COMPUTERNAME%\Receipt Printer```.
+To test this in the command line:
+```
+echo "Hello World" > testfile
+copy testfile "\\%COMPUTERNAME%\Receipt Printer"
+del testfile
+```
+
+
 # Examples
 
 ## Rust
