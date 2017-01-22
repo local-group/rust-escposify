@@ -1,6 +1,6 @@
 [package]
 name = "escposify"
-version = "0.1.3"
+version = "0.1.4"
 description = "A ESC/POS driver for Rust"
 readme = "README.md"
 keywords = ["ESC", "POS", "printer", "driver"]
