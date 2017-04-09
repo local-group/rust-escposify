@@ -1,7 +1,7 @@
 # escposify-rs
 A ESC/POS driver for Rust
 
-[Documentation](http://dl.ahorn.me/rust-doc/escposify/escposify/)
+[Documentation](https://docs.rs/escposify)
 
 Most ESC/POS Printers will appear as a file. To print to the device, open a file to the location and pass this to the ```File::from``` function.
 
