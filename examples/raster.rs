@@ -15,9 +15,8 @@ fn main() {
     let tempf = NamedTempFileOptions::new()
         .create()
         .unwrap();
-    let temp_path = tempf.path().to_str().unwrap().to_owned();
 
-    let file = File::from(temp_path.as_str(), tempf);
+    let file = File::from(tempf);
     let mut printer = Printer::new(file, None, None);
 
     let img = ImageBuffer::from_fn(512, 512, |x, _| {
