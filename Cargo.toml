@@ -9,12 +9,14 @@ documentation = "http://dl.ahorn.me/rust-doc/escposify/escposify/"
 license = "MIT"
 authors = ["Qian Linfeng <thewawar@gmail.com>"]
 
+[features]
+qrcode = [qrcode = "0.3"]
 
 [dependencies]
 encoding = "0.2"
 byteorder = "1.0"
 image = "0.13"
-qrcode = "0.3"
+
 
 [dev-dependencies]
 tempfile = "2.1.3"
