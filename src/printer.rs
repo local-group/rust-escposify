@@ -237,10 +237,12 @@ impl<W: io::Write> Printer<W> {
         self
     }
 
+    #[cfg(feature="qrcode")]
     pub fn qrimage(&mut self) -> &mut Printer<W> {
         self
     }
 
+    #[cfg(feature="qrcode")]
     pub fn qrcode(&mut self,
                   code: &str,
                   version: Option<i32>,
