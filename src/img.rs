@@ -1,10 +1,9 @@
 
 use std::path;
 use std::iter::Iterator;
-use qrcode::QrCode;
 
 use image;
-use image::{ImageBuffer, DynamicImage, GenericImage};
+use image::{DynamicImage, GenericImage};
 
 
 pub struct Image {
@@ -33,7 +32,10 @@ impl Image {
         }
     }
 
+    #[cfg(feature="qrcode_builder")]
     pub fn from_qr(code: &str, width: u32) -> Image {
+        use qrcode::QrCode;
+        use image::ImageBuffer;
         let code = QrCode::new(code.as_bytes()).unwrap();
         let code_width = code.width() as u32;
         let point_width = width / (code_width + 2);

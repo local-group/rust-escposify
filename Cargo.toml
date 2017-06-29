@@ -1,6 +1,6 @@
 [package]
 name = "escposify"
-version = "0.1.4"
+version = "0.2.0"
 description = "A ESC/POS driver for Rust"
 readme = "README.md"
 keywords = ["ESC", "POS", "printer", "driver"]
@@ -9,12 +9,15 @@ documentation = "http://dl.ahorn.me/rust-doc/escposify/escposify/"
 license = "MIT"
 authors = ["Qian Linfeng <thewawar@gmail.com>"]
 
+[features]
+qrcode_builder = ["qrcode"]
 
 [dependencies]
-encoding = "0.2.32"
-byteorder = "0.5.1"
-image = "0.12"
-qrcode = "0.1.7"
+encoding = "0.2"
+byteorder = "1.0"
+image = "0.14"
+
+qrcode =  { version = "0.3", optional = true }
 
 [dev-dependencies]
 tempfile = "2.1.3"

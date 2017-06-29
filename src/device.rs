@@ -39,7 +39,6 @@ impl io::Write for Network {
 
 #[derive(Debug)]
 pub struct File<W> {
-    _path: String,
     fobj: W
 }
 
@@ -50,11 +49,11 @@ impl <W: io::Write> File<W> {
             .create(true)
             .open(&path)
             .unwrap();
-        File{_path: path.to_string(), fobj: fobj}
+        File{fobj: fobj}
     }
 
-    pub fn from(path: &str, fobj: W) -> File<W>{
-        File{_path: path.to_string(), fobj: fobj}
+    pub fn from(fobj: W) -> File<W>{
+        File{fobj: fobj}
     }
 }
 
