@@ -10,13 +10,14 @@ license = "MIT"
 authors = ["Qian Linfeng <thewawar@gmail.com>"]
 
 [features]
-qrcode = [qrcode = "0.3"]
+qrcode_builder = ["qrcode"]
 
 [dependencies]
 encoding = "0.2"
 byteorder = "1.0"
-image = "0.13"
+image = "0.14"
 
+qrcode =  { version = "0.3", optional = true }
 
 [dev-dependencies]
 tempfile = "2.1.3"

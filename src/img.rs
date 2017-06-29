@@ -32,7 +32,7 @@ impl Image {
         }
     }
 
-    #[cfg(feature="qrcode")]
+    #[cfg(feature="qrcode_builder")]
     pub fn from_qr(code: &str, width: u32) -> Image {
         use qrcode::QrCode;
         use image::ImageBuffer;
