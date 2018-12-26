@@ -320,7 +320,7 @@ impl<W: io::Write> Printer<W> {
             "NORMAL" | _ => consts::GSV0_NORMAL,
         };
         let _ = self.write(header);
-        let _ = self.write_u16le(image.width as u16);
+        let _ = self.write_u16le(((image.width+7)/8) as u16);
         let _ = self.write_u16le(image.height as u16);
         let _ = self.write(image.get_raster().as_ref());
         self
