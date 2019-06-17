@@ -316,10 +316,11 @@ impl<W: io::Write> Printer<W> {
         let header = match mode_upper.as_ref() {
             "DH" => consts::GSV0_DH,
             "DWDH" => consts::GSV0_DWDH,
-            "DW" | "NORMAL" | _ => consts::GSV0_DW,
+            "DW" => consts::GSV0_DW,
+            "NORMAL" | _ => consts::GSV0_NORMAL,
         };
         let _ = self.write(header);
-        let _ = self.write_u16le(image.width as u16);
+        let _ = self.write_u16le(((image.width+7)/8) as u16);
         let _ = self.write_u16le(image.height as u16);
         let _ = self.write(image.get_raster().as_ref());
         self

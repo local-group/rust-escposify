@@ -96,8 +96,8 @@ impl Image {
     }
 
     pub fn get_raster(&self) -> Box<[u8]>{
-        let n = self.width / 8;
-        let mut data: Vec<u8> = vec![0; (self.width * self.height) as usize];
+        let n = (self.width+7) / 8; // Number of bytes per line
+        let mut data: Vec<u8> = vec![0; (n * self.height) as usize];
         for y in 0..self.height {
             for x in 0..n {
                 for b in 0..8 {
