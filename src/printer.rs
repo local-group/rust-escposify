@@ -1,5 +1,4 @@
-use std::io;
-use std::io::Write;
+use std::io::{self, Write};
 use std::iter;
 
 use byteorder::{LittleEndian, WriteBytesExt};
@@ -98,7 +97,12 @@ impl<W: io::Write> Printer<W> {
             "CR" => consts::CTL_CR,
             "HT" => consts::CTL_HT,
             "VT" => consts::CTL_VT,
-            _ => panic!("Invalid control action: {}", ctrl),
+            _ => {
+                return Err(io::Error::new(
+                    io::ErrorKind::InvalidData,
+                    format!("Invalid control action: {}", ctrl),
+                ))
+            }
         };
         self.write(ctrl_value)
     }
@@ -109,7 +113,12 @@ impl<W: io::Write> Printer<W> {
             "LT" => consts::TXT_ALIGN_LT,
             "CT" => consts::TXT_ALIGN_CT,
             "RT" => consts::TXT_ALIGN_RT,
-            _ => panic!("Invalid alignment: {}", alignment),
+            _ => {
+                return Err(io::Error::new(
+                    io::ErrorKind::InvalidData,
+                    format!("Invalid alignment: {}", alignment),
+                ))
+            }
         };
         self.write(align_value)
     }
@@ -120,7 +129,12 @@ impl<W: io::Write> Printer<W> {
             "A" => consts::TXT_FONT_A,
             "B" => consts::TXT_FONT_B,
             "C" => consts::TXT_FONT_C,
-            _ => panic!("Invalid font family: {}", family),
+            _ => {
+                return Err(io::Error::new(
+                    io::ErrorKind::InvalidData,
+                    format!("Invalid font family: {}", family),
+                ))
+            }
         };
         self.write(family_value)
     }
@@ -155,7 +169,12 @@ impl<W: io::Write> Printer<W> {
             "INIT" => consts::HW_INIT,
             "SELECT" => consts::HW_SELECT,
             "RESET" => consts::HW_RESET,
-            _ => panic!("Invalid hardware command: {}", hw),
+            _ => {
+                return Err(io::Error::new(
+                    io::ErrorKind::InvalidData,
+                    format!("Invalid hardware command: {}", hw),
+                ))
+            }
         };
         self.write(value)
     }
@@ -296,7 +315,7 @@ impl<W: io::Write> Printer<W> {
         };
         let mut n_bytes = 0;
         n_bytes += self.write(header)?;
-        n_bytes += self.write_u16le(((image.width+7)/8) as u16)?;
+        n_bytes += self.write_u16le(((image.width + 7) / 8) as u16)?;
         n_bytes += self.write_u16le(image.height as u16)?;
         n_bytes += self.write(image.get_raster().as_ref())?;
         Ok(n_bytes)
