@@ -1,10 +1,8 @@
-
-use std::path;
 use std::iter::Iterator;
+use std::path;
 
 use image;
 use image::{DynamicImage, GenericImage};
-
 
 pub struct Image {
     pub width: u32,
@@ -19,7 +17,7 @@ impl Image {
         Image {
             width: width,
             height: height,
-            img_buf: img_buf
+            img_buf: img_buf,
         }
     }
 
@@ -28,25 +26,27 @@ impl Image {
         Image {
             width: width,
             height: height,
-            img_buf: img_buf
+            img_buf: img_buf,
         }
     }
 
-    #[cfg(feature="qrcode_builder")]
+    #[cfg(feature = "qrcode_builder")]
     pub fn from_qr(code: &str, width: u32) -> Image {
-        use qrcode::QrCode;
         use image::ImageBuffer;
+        use qrcode::QrCode;
         let code = QrCode::new(code.as_bytes()).unwrap();
         let code_width = code.width() as u32;
         let point_width = width / (code_width + 2);
         // QR code quite zone width
         let quite_width = (width % (code_width + 2)) / 2 + point_width;
         let img_buf = ImageBuffer::from_fn(width, width, |x, y| {
-            let is_white =  x < quite_width || y < quite_width
-                || x >= (width - quite_width) || y >= (width - quite_width)
+            let is_white = x < quite_width
+                || y < quite_width
+                || x >= (width - quite_width)
+                || y >= (width - quite_width)
                 || !code[(
-                    ((x-quite_width) / point_width) as usize,
-                    ((y-quite_width) / point_width) as usize
+                    ((x - quite_width) / point_width) as usize,
+                    ((y - quite_width) / point_width) as usize,
                 )];
             if is_white {
                 image::Rgb([0xFF, 0xFF, 0xFF])
@@ -57,7 +57,7 @@ impl Image {
         Image {
             width: width,
             height: width,
-            img_buf: DynamicImage::ImageRgb8(img_buf)
+            img_buf: DynamicImage::ImageRgb8(img_buf),
         }
     }
 
@@ -68,14 +68,18 @@ impl Image {
     }
 
     pub fn bitimage_lines(&self, density: u32) -> BitimageLines {
-        BitimageLines {line: 0, density: density, image: self}
+        BitimageLines {
+            line: 0,
+            density: density,
+            image: self,
+        }
     }
 
     fn get_line(&self, num: u32, density: u32) -> Option<Box<[u8]>> {
         let n = self.height as u32 / density;
         let y = num - 1;
         if y >= n {
-            return None
+            return None;
         }
 
         let c = density / 8;
@@ -95,15 +99,15 @@ impl Image {
         Some(data.into_boxed_slice())
     }
 
-    pub fn get_raster(&self) -> Box<[u8]>{
-        let n = (self.width+7) / 8; // Number of bytes per line
+    pub fn get_raster(&self) -> Box<[u8]> {
+        let n = (self.width + 7) / 8; // Number of bytes per line
         let mut data: Vec<u8> = vec![0; (n * self.height) as usize];
         for y in 0..self.height {
             for x in 0..n {
                 for b in 0..8 {
                     let i = x * 8 + b;
                     if i < self.width && !self.is_blank_pixel(i, y) {
-                        data[(y*n + x) as usize] += 0x80 >> (b & 0x7);
+                        data[(y * n + x) as usize] += 0x80 >> (b & 0x7);
                     }
                 }
             }
@@ -112,8 +116,7 @@ impl Image {
     }
 }
 
-
-pub struct BitimageLines<'a>{
+pub struct BitimageLines<'a> {
     line: u32,
     density: u32,
     image: &'a Image,
