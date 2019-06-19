@@ -19,7 +19,7 @@ impl Network {
         Network {
             _host: host.to_string(),
             _port: port,
-            stream: stream,
+            stream,
         }
     }
 }
@@ -40,17 +40,17 @@ pub struct File<W> {
 }
 
 impl<W: io::Write> File<W> {
-    pub fn new<P: AsRef<path::Path> + ToString>(path: P) -> File<fs::File> {
+    pub fn from_path<P: AsRef<path::Path> + ToString>(path: P) -> File<fs::File> {
         let fobj = fs::OpenOptions::new()
             .write(true)
             .create(true)
             .open(&path)
             .unwrap();
-        File { fobj: fobj }
+        File { fobj }
     }
 
     pub fn from(fobj: W) -> File<W> {
-        File { fobj: fobj }
+        File { fobj }
     }
 }
 

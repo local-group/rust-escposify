@@ -7,9 +7,10 @@ use escposify::img::Image;
 use escposify::printer::Printer;
 
 use image::{DynamicImage, ImageBuffer};
+use std::io;
 use tempfile::NamedTempFileOptions;
 
-fn main() {
+fn main() -> io::Result<()> {
     let tempf = NamedTempFileOptions::new().create().unwrap();
 
     let file = File::from(tempf);
@@ -23,11 +24,11 @@ fn main() {
         }
     });
     let image = Image::from(DynamicImage::ImageRgb8(img));
-    let _ = printer
-        .align("ct")
-        .raster(&image, None)
-        .raster(&image, Some("dw"))
-        .raster(&image, Some("dh"))
-        .raster(&image, Some("dwdh"))
-        .flush();
+    printer
+        .chain_align("ct")?
+        .chain_raster(&image, None)?
+        .chain_raster(&image, Some("dw"))?
+        .chain_raster(&image, Some("dh"))?
+        .chain_raster(&image, Some("dwdh"))?
+        .flush()
 }

@@ -15,18 +15,18 @@ impl Image {
         let img_buf = image::open(&path).unwrap();
         let (width, height) = img_buf.dimensions();
         Image {
-            width: width,
-            height: height,
-            img_buf: img_buf,
+            width,
+            height,
+            img_buf,
         }
     }
 
     pub fn from(img_buf: DynamicImage) -> Image {
         let (width, height) = img_buf.dimensions();
         Image {
-            width: width,
-            height: height,
-            img_buf: img_buf,
+            width,
+            height,
+            img_buf,
         }
     }
 
@@ -39,6 +39,8 @@ impl Image {
         let point_width = width / (code_width + 2);
         // QR code quite zone width
         let quite_width = (width % (code_width + 2)) / 2 + point_width;
+
+        #[allow(clippy::many_single_char_names)]
         let img_buf = ImageBuffer::from_fn(width, width, |x, y| {
             let is_white = x < quite_width
                 || y < quite_width
@@ -55,7 +57,7 @@ impl Image {
             }
         });
         Image {
-            width: width,
+            width,
             height: width,
             img_buf: DynamicImage::ImageRgb8(img_buf),
         }
@@ -70,11 +72,12 @@ impl Image {
     pub fn bitimage_lines(&self, density: u32) -> BitimageLines {
         BitimageLines {
             line: 0,
-            density: density,
+            density,
             image: self,
         }
     }
 
+    #[allow(clippy::many_single_char_names)]
     fn get_line(&self, num: u32, density: u32) -> Option<Box<[u8]>> {
         let n = self.height as u32 / density;
         let y = num - 1;
@@ -99,6 +102,7 @@ impl Image {
         Some(data.into_boxed_slice())
     }
 
+    #[allow(clippy::many_single_char_names)]
     pub fn get_raster(&self) -> Box<[u8]> {
         let n = (self.width + 7) / 8; // Number of bytes per line
         let mut data: Vec<u8> = vec![0; (n * self.height) as usize];

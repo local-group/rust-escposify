@@ -9,6 +9,7 @@ script:
 stages:
   - Check
   - Clippy
+  - Example
   - Test
 jobs:
   include:
@@ -20,6 +21,10 @@ jobs:
       name: Clippy
       script:
         - make clippy
+    - stage: Example
+      name: Example
+      script:
+        - make example
     - stage: Test
       name: Unitest
       script:

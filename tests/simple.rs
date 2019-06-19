@@ -14,14 +14,23 @@ fn simple() {
     let mut printer = Printer::new(file, None, None);
 
     let _ = printer
-        .font("C")
-        .align("lt")
-        .style("bu")
-        .size(0, 0)
-        .text("The quick brown fox jumps over the lazy dog")
-        .text("敏捷的棕色狐狸跳过懒狗")
-        .barcode("12345678", "EAN8", "", "", 0, 0)
-        .feed(1)
-        .cut(false)
+        .chain_font("C")
+        .unwrap()
+        .chain_align("lt")
+        .unwrap()
+        .chain_style("bu")
+        .unwrap()
+        .chain_size(0, 0)
+        .unwrap()
+        .chain_text("The quick brown fox jumps over the lazy dog")
+        .unwrap()
+        .chain_text("敏捷的棕色狐狸跳过懒狗")
+        .unwrap()
+        .chain_barcode("12345678", "EAN8", "", "", 0, 0)
+        .unwrap()
+        .chain_feed(1)
+        .unwrap()
+        .chain_cut(false)
+        .unwrap()
         .flush();
 }
