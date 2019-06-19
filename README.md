@@ -23,30 +23,29 @@ See: [simple.rs](examples/simple.rs)
 extern crate escposify;
 extern crate tempfile;
 
-use escposify::printer::Printer;
+use std::io;
+
 use escposify::device::File;
+use escposify::printer::Printer;
 
-use tempfile::{NamedTempFileOptions};
+use tempfile::NamedTempFileOptions;
 
-fn main() {
-    let tempf = NamedTempFileOptions::new()
-        .create()
-        .unwrap();
-    let temp_path = tempf.path().to_str().unwrap().to_owned();
+fn main() -> io::Result<()> {
+    let tempf = NamedTempFileOptions::new().create().unwrap();
 
-    let file = File::from(temp_path.as_str(), tempf);
+    let file = File::from(tempf);
     let mut printer = Printer::new(file, None, None);
 
-    let _ = printer
-        .font("C")
-        .align("lt")
-        .style("bu")
-        .size(0, 0)
-        .text("The quick brown fox jumps over the lazy dog")
-        .text("敏捷的棕色狐狸跳过懒狗")
-        .barcode("12345678", "EAN8", "", "", 0, 0)
-        .feed(1)
-        .cut(false)
-        .flush();
+    printer
+        .chain_font("C")?
+        .chain_align("lt")?
+        .chain_style("bu")?
+        .chain_size(0, 0)?
+        .chain_text("The quick brown fox jumps over the lazy dog")?
+        .chain_text("敏捷的棕色狐狸跳过懒狗")?
+        .chain_barcode("12345678", "EAN8", "", "", 0, 0)?
+        .chain_feed(1)?
+        .chain_cut(false)?
+        .flush()
 }
 ```
