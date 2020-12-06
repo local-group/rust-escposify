@@ -1,7 +1,12 @@
 [package]
 name = "escposify"
 version = "0.3.0"
-description = "A ESC/POS driver for Rust"
+description = """
+A ESC/POS driver for Rust
+
+## Minimum Rust version policy (MSRV)
+This crate's minimum supported rustc version is 1.46.0.
+"""
 readme = "README.md"
 keywords = ["ESC", "POS", "printer", "driver"]
 repository = "https://github.com/local-group/rust-escposify"
