@@ -186,9 +186,8 @@ impl<W: io::Write> Printer<W> {
             "U2" => Ok(self.write(consts::TXT_BOLD_OFF)? + self.write(consts::TXT_UNDERL2_ON)?),
             "BU" => Ok(self.write(consts::TXT_BOLD_ON)? + self.write(consts::TXT_UNDERL_ON)?),
             "BU2" => Ok(self.write(consts::TXT_BOLD_ON)? + self.write(consts::TXT_UNDERL2_ON)?),
-            "NORMAL" | _ => {
-                Ok(self.write(consts::TXT_BOLD_OFF)? + self.write(consts::TXT_UNDERL_OFF)?)
-            }
+            // "NORMAL" | _ =>
+            _ => Ok(self.write(consts::TXT_BOLD_OFF)? + self.write(consts::TXT_UNDERL_OFF)?),
         }
     }
 
@@ -258,13 +257,15 @@ impl<W: io::Write> Printer<W> {
         let kind = kind.to_uppercase().replace("-", "_");
         let font_value = match font.as_ref() {
             "B" => consts::BARCODE_FONT_B,
-            "A" | _ => consts::BARCODE_FONT_A,
+            // "A" | _ =>
+            _ => consts::BARCODE_FONT_A,
         };
         let txt_value = match position.as_ref() {
             "OFF" => consts::BARCODE_TXT_OFF,
             "ABV" => consts::BARCODE_TXT_ABV,
             "BTH" => consts::BARCODE_TXT_BTH,
-            "BLW" | _ => consts::BARCODE_TXT_BLW,
+            // "BLW" | _ =>
+            _ => consts::BARCODE_TXT_BLW,
         };
         let kind_value = match kind.as_ref() {
             "UPC_A" => consts::BARCODE_UPC_A,
@@ -273,7 +274,8 @@ impl<W: io::Write> Printer<W> {
             "CODE39" => consts::BARCODE_CODE39,
             "ITF" => consts::BARCODE_ITF,
             "NW7" => consts::BARCODE_NW7,
-            "EAN13" | _ => consts::BARCODE_EAN13,
+            // "EAN13" | _ =>
+            _ => consts::BARCODE_EAN13,
         };
         n += self.write(font_value)?;
         self.write(txt_value)?;
@@ -314,7 +316,8 @@ impl<W: io::Write> Printer<W> {
             "M" => consts::QR_LEVEL_M,
             "Q" => consts::QR_LEVEL_Q,
             "H" => consts::QR_LEVEL_H,
-            "L" | _ => consts::QR_LEVEL_L,
+            // "L" | _ =>
+            _ => consts::QR_LEVEL_L,
         };
         let mut n = 0;
         n += self.write(consts::TYPE_QR)?;
@@ -374,7 +377,8 @@ impl<W: io::Write> Printer<W> {
             "S8" => consts::BITMAP_S8,
             "D8" => consts::BITMAP_D8,
             "S24" => consts::BITMAP_S24,
-            "D24" | _ => consts::BITMAP_D24,
+            // "D24" | _ =>
+            _ => consts::BITMAP_D24,
         };
         let n = if density == "s8" || density == "d8" {
             1
@@ -401,7 +405,8 @@ impl<W: io::Write> Printer<W> {
             "DH" => consts::GSV0_DH,
             "DWDH" => consts::GSV0_DWDH,
             "DW" => consts::GSV0_DW,
-            "NORMAL" | _ => consts::GSV0_NORMAL,
+            // "NORMAL" | _ =>
+            _ => consts::GSV0_NORMAL,
         };
         let mut n_bytes = 0;
         n_bytes += self.write(header)?;
