@@ -2,7 +2,7 @@ use std::iter::Iterator;
 use std::path;
 
 use image;
-use image::{DynamicImage, GenericImage};
+use image::{DynamicImage, GenericImageView};
 
 pub struct Image {
     pub width: u32,

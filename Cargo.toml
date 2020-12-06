@@ -1,6 +1,6 @@
 [package]
 name = "escposify"
-version = "0.3.0"
+version = "0.4.0"
 description = """
 A ESC/POS driver for Rust
 
@@ -20,7 +20,7 @@ qrcode_builder = ["qrcode"]
 [dependencies]
 encoding = "0.2"
 byteorder = "1.0"
-image = "0.14"
+image = "0.23"
 
 qrcode =  { version = "0.3", optional = true }
 
