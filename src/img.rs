@@ -46,10 +46,10 @@ impl Image {
                 || y < quite_width
                 || x >= (width - quite_width)
                 || y >= (width - quite_width)
-                || !code[(
+                || code[(
                     ((x - quite_width) / point_width) as usize,
                     ((y - quite_width) / point_width) as usize,
-                )];
+                )] == qrcode::Color::Light;
             if is_white {
                 image::Rgb([0xFF, 0xFF, 0xFF])
             } else {
