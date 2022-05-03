@@ -23,8 +23,10 @@ impl<W: io::Write> Printer<W> {
         }
     }
 
-    fn encode(&mut self, content: &str) -> Vec<u8> {
-        self.codec.encode(content, self.trap).unwrap()
+    fn encode(&mut self, content: &str) -> io::Result<Vec<u8>> {
+        self.codec
+            .encode(content, self.trap)
+            .map_err(|err| io::Error::new(io::ErrorKind::InvalidData, err.to_string()))
     }
 
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
@@ -40,7 +42,7 @@ impl<W: io::Write> Printer<W> {
 
     fn write_u16le(&mut self, n: u16) -> io::Result<usize> {
         let mut wtr = vec![];
-        wtr.write_u16::<LittleEndian>(n).unwrap();
+        wtr.write_u16::<LittleEndian>(n)?;
         self.write(wtr.as_slice())
     }
 
@@ -74,7 +76,7 @@ impl<W: io::Write> Printer<W> {
     }
     pub fn print(&mut self, content: &str) -> io::Result<usize> {
         // let rv = self.encode(content);
-        let rv = self.encode(content);
+        let rv = self.encode(content)?;
         self.write(rv.as_slice())
     }
 

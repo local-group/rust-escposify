@@ -2,7 +2,7 @@ use std::iter::Iterator;
 use std::path;
 
 use image;
-use image::{DynamicImage, GenericImageView};
+use image::{error::ImageResult, DynamicImage, GenericImageView};
 
 pub struct Image {
     pub width: u32,
@@ -11,14 +11,14 @@ pub struct Image {
 }
 
 impl Image {
-    pub fn new<P: AsRef<path::Path> + ToString>(path: P) -> Image {
-        let img_buf = image::open(&path).unwrap();
+    pub fn new<P: AsRef<path::Path> + ToString>(path: P) -> ImageResult<Image> {
+        let img_buf = image::open(&path)?;
         let (width, height) = img_buf.dimensions();
-        Image {
+        Ok(Image {
             width,
             height,
             img_buf,
-        }
+        })
     }
 
     pub fn from(img_buf: DynamicImage) -> Image {
@@ -31,10 +31,10 @@ impl Image {
     }
 
     #[cfg(feature = "qrcode_builder")]
-    pub fn from_qr(code: &str, width: u32) -> Image {
+    pub fn from_qr(code: &str, width: u32) -> qrcode::QrResult<Image> {
         use image::ImageBuffer;
         use qrcode::QrCode;
-        let code = QrCode::new(code.as_bytes()).unwrap();
+        let code = QrCode::new(code.as_bytes())?;
         let code_width = code.width() as u32;
         let point_width = width / (code_width + 2);
         // QR code quite zone width
@@ -56,11 +56,11 @@ impl Image {
                 image::Rgb([0, 0, 0])
             }
         });
-        Image {
+        Ok(Image {
             width,
             height: width,
             img_buf: DynamicImage::ImageRgb8(img_buf),
-        }
+        })
     }
 
     pub fn is_blank_pixel(&self, x: u32, y: u32) -> bool {

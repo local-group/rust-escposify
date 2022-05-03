@@ -14,13 +14,13 @@ pub struct Network {
 }
 
 impl Network {
-    pub fn new(host: &str, port: u16) -> Network {
-        let stream = net::TcpStream::connect((host, port)).unwrap();
-        Network {
+    pub fn new(host: &str, port: u16) -> io::Result<Network> {
+        let stream = net::TcpStream::connect((host, port))?;
+        Ok(Network {
             _host: host.to_string(),
             _port: port,
             stream,
-        }
+        })
     }
 }
 
@@ -40,13 +40,12 @@ pub struct File<W> {
 }
 
 impl<W: io::Write> File<W> {
-    pub fn from_path<P: AsRef<path::Path> + ToString>(path: P) -> File<fs::File> {
+    pub fn from_path<P: AsRef<path::Path> + ToString>(path: P) -> io::Result<File<fs::File>> {
         let fobj = fs::OpenOptions::new()
             .write(true)
             .create(true)
-            .open(&path)
-            .unwrap();
-        File { fobj }
+            .open(&path)?;
+        Ok(File { fobj })
     }
 
     pub fn from(fobj: W) -> File<W> {

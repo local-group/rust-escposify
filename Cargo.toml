@@ -18,10 +18,10 @@ qrcode_builder = ["qrcode"]
 
 [dependencies]
 encoding = "0.2"
-byteorder = "1.0"
+byteorder = "1.4"
 image = "0.23"
 
-qrcode =  { version = "0.3", optional = true }
+qrcode =  { version = "0.10", optional = true }
 
 [dev-dependencies]
 tempfile = "2.1.3"
