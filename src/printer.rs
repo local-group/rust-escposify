@@ -8,12 +8,11 @@ use encoding::types::{EncoderTrap, EncodingRef};
 use consts;
 use img::Image;
 
-///
 /// Allows for printing to a [::device]
 ///
 /// # Example
 /// ```rust
-///  use escposify::printer::Printer;
+/// use escposify::printer::Printer;
 ///
 /// fn main() -> std::io::Result<()> {
 ///
@@ -26,7 +25,6 @@ use img::Image;
 ///     .flush()
 /// }
 /// ```
-///
 pub struct Printer<W: io::Write> {
     writer: io::BufWriter<W>,
     codec: EncodingRef,
