@@ -8,25 +8,25 @@ use encoding::types::{EncoderTrap, EncodingRef};
 use consts;
 use img::Image;
 
-/**
-Allows for printing to a [::device]
-
-# Example
-```rust
- use escposify::printer::Printer;
-
-fn main() -> std::io::Result<()> {
-
-    let mut printer = Printer::new(file, None, None);
-
-    printer
-    .chain_size(0,0)?
-    .chain_text("The quick brown fox jumped over the lazy dog")?
-    .chain_feed(1)?
-    .flush()
-}
-```
- */
+///
+/// Allows for printing to a [::device]
+///
+/// # Example
+/// ```rust
+///  use escposify::printer::Printer;
+///
+/// fn main() -> std::io::Result<()> {
+///
+///     let mut printer = Printer::new(file, None, None);
+///
+///     printer
+///     .chain_size(0,0)?
+///     .chain_text("The quick brown fox jumped over the lazy dog")?
+///     .chain_feed(1)?
+///     .flush()
+/// }
+/// ```
+///
 pub struct Printer<W: io::Write> {
     writer: io::BufWriter<W>,
     codec: EncodingRef,

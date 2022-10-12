@@ -10,7 +10,7 @@ fn main() -> io::Result<()> {
     let mut printer = Printer::new(file, None, None);
 
     printer
-        .chain_size(0,0)?
+        .chain_size(0, 0)?
         .chain_text("The quick brown fox jumps over the lazy dog")?
         .chain_feed(1)?
         .chain_cut(false)?
