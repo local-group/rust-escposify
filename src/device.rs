@@ -33,7 +33,9 @@ impl io::Write for Network {
         self.stream.flush()
     }
 }
-
+/**
+ File device that can be written to.
+*/
 #[derive(Debug)]
 pub struct File<W> {
     fobj: W,
@@ -48,6 +50,16 @@ impl<W: io::Write> File<W> {
         Ok(File { fobj })
     }
 
+    /**
+    Create a device::File from a [std::fs::File].
+    # Example
+    ```rust
+    use std::fs::File;
+
+    let fobj = File::options().append(true).open("/path/to/file");
+    let file = escposify::device::File::from(fobj);
+    ```
+    */
     pub fn from(fobj: W) -> File<W> {
         File { fobj }
     }
