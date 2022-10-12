@@ -50,7 +50,7 @@ impl<W: io::Write> File<W> {
         Ok(File { fobj })
     }
 
-    /// Create a device::File from a [std::fs::File].
+    /// Create a device::File from a [std::io::Write].
     /// # Example
     /// ```rust
     /// use std::fs::File;
