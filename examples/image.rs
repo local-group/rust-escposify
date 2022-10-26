@@ -1,7 +1,3 @@
-extern crate escposify;
-extern crate image;
-extern crate tempfile;
-
 use escposify::device::File;
 use escposify::img::Image;
 use escposify::printer::Printer;

@@ -54,8 +54,10 @@ impl<W: io::Write> File<W> {
     /// # Example
     /// ```rust
     /// use std::fs::File;
+    /// use tempfile::NamedTempFileOptions;
     ///
-    /// let fobj = File::options().append(true).open("/path/to/file");
+    /// let tempf = NamedTempFileOptions::new().create().unwrap();
+    /// let fobj = File::options().append(true).open(tempf.path()).unwrap();
     /// let file = escposify::device::File::from(fobj);
     /// ```
     pub fn from(fobj: W) -> File<W> {

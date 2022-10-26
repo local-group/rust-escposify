@@ -1,6 +1,3 @@
-extern crate escposify;
-extern crate tempfile;
-
 use std::io;
 
 use escposify::device::File;

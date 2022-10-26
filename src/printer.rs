@@ -1,28 +1,30 @@
 use std::io::{self, Write};
-use std::iter;
 
 use byteorder::{LittleEndian, WriteBytesExt};
 use encoding::all::UTF_8;
 use encoding::types::{EncoderTrap, EncodingRef};
 
-use consts;
-use img::Image;
+use crate::consts;
+use crate::img::Image;
 
 /// Allows for printing to a [::device]
 ///
 /// # Example
 /// ```rust
+/// use std::fs::File;
 /// use escposify::printer::Printer;
+/// use tempfile::NamedTempFileOptions;
 ///
 /// fn main() -> std::io::Result<()> {
-///
+///     let tempf = tempfile::NamedTempFileOptions::new().create().unwrap();
+///     let file = File::from(tempf);
 ///     let mut printer = Printer::new(file, None, None);
 ///
 ///     printer
-///     .chain_size(0,0)?
-///     .chain_text("The quick brown fox jumped over the lazy dog")?
-///     .chain_feed(1)?
-///     .flush()
+///       .chain_size(0,0)?
+///       .chain_text("The quick brown fox jumped over the lazy dog")?
+///       .chain_feed(1)?
+///       .flush()
 /// }
 /// ```
 pub struct Printer<W: io::Write> {
@@ -127,12 +129,7 @@ impl<W: io::Write> Printer<W> {
     }
     pub fn feed(&mut self, n: usize) -> io::Result<usize> {
         let n = if n < 1 { 1 } else { n };
-        self.write(
-            iter::repeat(consts::EOL)
-                .take(n)
-                .collect::<String>()
-                .as_ref(),
-        )
+        self.write(consts::EOL.repeat(n).as_ref())
     }
 
     pub fn chain_control(&mut self, ctrl: &str) -> io::Result<&mut Self> {
@@ -273,7 +270,7 @@ impl<W: io::Write> Printer<W> {
 
         let font = font.to_uppercase();
         let position = position.to_uppercase();
-        let kind = kind.to_uppercase().replace("-", "_");
+        let kind = kind.to_uppercase().replace('-', "_");
         let font_value = match font.as_ref() {
             "B" => consts::BARCODE_FONT_B,
             // "A" | _ =>
@@ -367,12 +364,7 @@ impl<W: io::Write> Printer<W> {
 
     pub fn cut(&mut self, part: bool) -> io::Result<usize> {
         let mut n_bytes = 0;
-        n_bytes += self.print(
-            iter::repeat(consts::EOL)
-                .take(3)
-                .collect::<String>()
-                .as_ref(),
-        )?;
+        n_bytes += self.print(consts::EOL.repeat(3).as_ref())?;
         let paper_cut_type = if part {
             consts::PAPER_PART_CUT
         } else {
