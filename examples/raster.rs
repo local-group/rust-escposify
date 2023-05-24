@@ -1,6 +1,6 @@
-use escposify::device::File;
-use escposify::img::Image;
-use escposify::printer::Printer;
+use snbc::device::File;
+use snbc::img::Image;
+use snbc::printer::Printer;
 
 use image::{DynamicImage, ImageBuffer};
 use std::io;

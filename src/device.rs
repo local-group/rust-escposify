@@ -58,7 +58,7 @@ impl<W: io::Write> File<W> {
     ///
     /// let tempf = NamedTempFileOptions::new().create().unwrap();
     /// let fobj = File::options().append(true).open(tempf.path()).unwrap();
-    /// let file = escposify::device::File::from(fobj);
+    /// let file = snbc::device::File::from(fobj);
     /// ```
     pub fn from(fobj: W) -> File<W> {
         File { fobj }

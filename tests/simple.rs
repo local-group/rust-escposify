@@ -1,9 +1,9 @@
 extern crate tempfile;
 
-extern crate escposify;
+extern crate snbc;
 
-use escposify::device::File;
-use escposify::printer::Printer;
+use snbc::device::File;
+use snbc::printer::Printer;
 use tempfile::NamedTempFileOptions;
 
 #[test]

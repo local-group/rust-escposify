@@ -1,15 +1,15 @@
 [package]
-name = "escposify"
+name = "snbc"
 version = "0.5.2"
 description = """
-A ESC/POS driver for Rust
+An snbc-printer driver for Rust
 
 ## Minimum Rust version policy (MSRV)
 This crate's minimum supported rustc version is 1.46.0.
 """
 readme = "README.md"
-keywords = ["ESC", "POS", "printer", "driver"]
-repository = "https://github.com/local-group/rust-escposify"
+keywords = ["ESC", "POS", "snbc", "printer", "driver"]
+# repository = "https://github.com/local-group/rust-escposify"
 license = "MIT"
 authors = ["Qian Linfeng <thewawar@gmail.com>"]
 edition = "2021"

@@ -1,12 +1,12 @@
 use std::fs::File;
 use std::io;
 
-use escposify::printer::Printer;
+use snbc::printer::Printer;
 
 fn main() -> io::Result<()> {
     let device_file = File::options().append(true).open("/dev/usb/lp0").unwrap();
 
-    let file = escposify::device::File::from(device_file);
+    let file = snbc::device::File::from(device_file);
     let mut printer = Printer::new(file, None, None);
 
     printer

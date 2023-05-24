@@ -7,15 +7,91 @@ use encoding::types::{EncoderTrap, EncodingRef};
 use crate::consts;
 use crate::img::Image;
 
+pub enum TextPosition {
+    Off = 0x00,
+    Above = 0x01,
+    Below = 0x02,
+    Both = 0x03,
+}
+
+pub enum BarcodeType {
+    UPCA = 0, // or 65?
+    UPCE = 1, // or 66?
+    EAN13 = 2, // or 67?
+    EAN8 = 3, // or 68?
+    CODE39 = 4, // or 69?
+    ITF = 5, // or 70?
+    Code93 = 72,
+    Codabar = 6, // or 71?
+    Code128 = 73,
+    PDF417 = 10, // or 75?
+    QRCode = 11, // or 76?
+    Maxicode = 12, // or 77?
+    GS1 = 13, // or 78?
+}
+
+pub enum Font {
+    Standard,
+    Compressed,
+}
+
+pub struct Barcode {
+    pub width: u8, // 2 <= n <= 6
+    pub height: u8, // 1 <= n <= 255
+    pub font: Font,
+    // pub code: &str,
+    pub kind: BarcodeType,
+    pub position: TextPosition,
+}
+
+impl Barcode {
+    pub fn set_width(&mut self) -> [u8; 3] {
+        if self.width >= 2 && self.width <= 6 {
+            return [0x1d, 0x77, self.width];
+        }
+        [0x1d, 0x77, 0x02] // 2 is the default according to docs
+    }
+
+    pub fn set_height(&mut self) -> [u8; 3] {
+        [0x1d, 0x68, self.height as u8]
+    }
+
+    pub fn set_text_position(&mut self) -> [u8; 3] {
+        match self.position {
+            TextPosition::Off => [0x1d, 0x48, 0x00],
+            TextPosition::Above => [0x1d, 0x48, 0x01],
+            TextPosition::Below => [0x1d, 0x48, 0x02],
+            TextPosition::Both => [0x1d, 0x48, 0x03],
+        }
+    }
+
+    pub fn set_font(&mut self) -> [u8; 3] {
+        match self.font {
+            Font::Compressed => [0x1d, 0x66, 0x01],
+            _ => [0x1d, 0x66, 0x00], // Default to standard font
+        }
+    }
+
+    pub fn set_barcode_type(&mut self) -> [u8; 3] {
+        match self.kind {
+            BarcodeType::EAN13 => [0x1d, 0x6b, 0x02],
+            BarcodeType::Code128 => [0x1d, 0x6b, 0x49],
+            _ => [0x1d, 0x6b, 0x02],
+        }
+    }
+
+}
+
 /// Allows for printing to a [::device]
 ///
 /// # Example
 /// ```rust
 /// use std::fs::File;
-/// use escposify::printer::Printer;
+/// use snbc::printer::Printer;
 /// use tempfile::NamedTempFileOptions;
 ///
 /// fn main() -> std::io::Result<()> {
+///     // TODO: Fix this example as NamedTempFileOptions is out of date
 ///     let tempf = tempfile::NamedTempFileOptions::new().create().unwrap();
 ///     let file = File::from(tempf);
 ///     let mut printer = Printer::new(file, None, None);
@@ -69,67 +145,142 @@ impl<W: io::Write> Printer<W> {
         self.writer.flush()
     }
 
+    /// ESC @ - Initialize printer, clear data in print buffer and set print mode
+    /// to the default mode when powered on.
+    ///
+    /// ASCII    ESC   @
+    /// Hex      1b   40
+    /// Decimal  27   64
+    /// Notes:
+    ///   - The data in the receive buffer is not cleared
+    ///   - The macro definition is not cleared
+    ///   - The NV bitmap data is not cleared
+    pub fn hwinit(&mut self) -> io::Result<usize> {
+        self.write(&[0x1b, 0x40])
+    }
     pub fn chain_hwinit(&mut self) -> io::Result<&mut Self> {
         self.hwinit().map(|_| self)
     }
-    pub fn hwinit(&mut self) -> io::Result<usize> {
-        self.write(consts::HW_INIT)
+
+    /// ESC = n - Enable/Disable Printer
+    /// Docs describe this as "Select printer to which host computer sends data"
+    ///
+    /// ASCII    ESC   =  n
+    /// Hex      1b   3d  n
+    /// Decimal  27   61  n
+    /// Range: 0 <= n <= 1
+    ///
+    /// Meaning of n is as follows:
+    ///
+    /// | Bit | 1/0 | Hex | Decimal | Function         |
+    /// |-----|-----|-----|---------|------------------|
+    /// |  0  |  0  |  00 |    0    | Printer disabled |
+    /// |  0  |  1  |  01 |    1    | Printer enabled  |
+    /// | 1-7 |     |     |         | Undefined        |
+    ///
+    /// Notes:
+    /// When the printer is disabled, it ignores all commands except for
+    /// real-time commands (DLE EOT, DLE ENQ, DLE DC4) until it is enabled by
+    /// this command.
+    ///
+    /// Default: n = 1
+    pub fn enable(&mut self) -> io::Result<usize> {
+        self.write(&[0x1b, 0x3d, 0x01])
+    }
+    pub fn chain_enable(&mut self) -> io::Result<&mut Self> {
+        self.enable().map(|_| self)
     }
 
-    pub fn chain_hwselect(&mut self) -> io::Result<&mut Self> {
-        self.hwselect().map(|_| self)
+    pub fn disable(&mut self) -> io::Result<usize> {
+        self.write(&[0x1b, 0x3d, 0x00])
     }
-    pub fn hwselect(&mut self) -> io::Result<usize> {
-        self.write(consts::HW_SELECT)
-    }
-
-    pub fn chain_hwreset(&mut self) -> io::Result<&mut Self> {
-        self.hwreset().map(|_| self)
-    }
-    pub fn hwreset(&mut self) -> io::Result<usize> {
-        self.write(consts::HW_RESET)
+    pub fn chain_disable(&mut self) -> io::Result<&mut Self> {
+        self.disable().map(|_| self)
     }
 
-    pub fn chain_print(&mut self, content: &str) -> io::Result<&mut Self> {
-        self.print(content).map(|_| self)
-    }
+    // TODO: There doesn't seem to be a hwreset command for snbc
+    // pub fn hwreset(&mut self) -> io::Result<usize> {
+    //     self.write(consts::HW_RESET)
+    // }
+    // pub fn chain_hwreset(&mut self) -> io::Result<&mut Self> {
+    //     self.hwreset().map(|_| self)
+    // }
+
     pub fn print(&mut self, content: &str) -> io::Result<usize> {
         // let rv = self.encode(content);
         let rv = self.encode(content)?;
         self.write(rv.as_slice())
     }
+    pub fn chain_print(&mut self, content: &str) -> io::Result<&mut Self> {
+        self.print(content).map(|_| self)
+    }
 
+    pub fn println(&mut self, content: &str) -> io::Result<usize> {
+        self.print(format!("{}{}", content, "\n").as_ref())
+    }
     pub fn chain_println(&mut self, content: &str) -> io::Result<&mut Self> {
         self.println(content).map(|_| self)
     }
-    pub fn println(&mut self, content: &str) -> io::Result<usize> {
-        self.print(format!("{}{}", content, consts::EOL).as_ref())
-    }
 
-    pub fn chain_text(&mut self, content: &str) -> io::Result<&mut Self> {
-        self.text(content).map(|_| self)
-    }
+    // TODO: This seems useless? just use print/println?
     pub fn text(&mut self, content: &str) -> io::Result<usize> {
         self.println(content)
     }
+    pub fn chain_text(&mut self, content: &str) -> io::Result<&mut Self> {
+        self.text(content).map(|_| self)
+    }
 
+    /// ESC 2/ESC 3 n - Set line spacing
+    ///
+    /// ESC 2 (0x1b, 0x32) Sets line spacing to default
+    /// ESC 3 (0x1b, 0x33, n) Specifies a specific line spacing
+    ///
+    /// ASCII    ESC   2
+    /// Hex      1b   32
+    /// Decimal  27   50
+    ///
+    /// ASCII    ESC   3  n
+    /// Hex      1b   33  n
+    /// Decimal  27   51  n
+    /// Range: 0 <= n <= 255
+    ///
+    /// Notes:
+    ///   - The line spacing can be set independently in standard mode and in
+    ///     page mode.
+    ///   - The horizontal and vertical motion units are specified by GS P.
+    ///     Changing the horizontal or vertical motion unit does not affect the
+    ///     current line spacing.
+    ///   - In standard mode, the vertical motion unit (y) is used.
+    ///   - In page mode, this command functions as follows, depending on the
+    ///     direction and starting position of the printable area:
+    ///     1) When the starting position is set to the upper left or lower right
+    ///        of the printable area by ESC T, the vertical motion unit (y) is
+    ///        used.
+    ///     2) When the starting position is set to the upper right or lower left
+    ///        of the printable area by ESC T, the horizontal motion unit (x) is
+    ///        used.
+    ///   - The maximum paper feed amount is 1016 mm (40 inches). Even if a paper
+    ///     feed amount of more than 1016 mm (40 inches) is set, the printer
+    ///     feeds the paper only 1016 mm (40 inches).
+    ///
+    /// Default: The default line spacing is approximately 4.23mm (1/6 inches).
+    pub fn line_space(&mut self, n: i32) -> io::Result<usize> {
+        if n >= 0 && n <= 255 {
+            Ok(self.write(&[0x1b, 0x33, n as u8])?)
+        } else {
+            self.write(&[0x1b, 0x32])
+        }
+    }
     pub fn chain_line_space(&mut self, n: i32) -> io::Result<&mut Self> {
         self.line_space(n).map(|_| self)
     }
-    pub fn line_space(&mut self, n: i32) -> io::Result<usize> {
-        if n >= 0 {
-            Ok(self.write(consts::LS_SET)? + self.write_u8(n as u8)?)
-        } else {
-            self.write(consts::LS_DEFAULT)
-        }
-    }
 
-    pub fn chain_feed(&mut self, n: usize) -> io::Result<&mut Self> {
-        self.feed(n).map(|_| self)
-    }
     pub fn feed(&mut self, n: usize) -> io::Result<usize> {
         let n = if n < 1 { 1 } else { n };
-        self.write(consts::EOL.repeat(n).as_ref())
+        self.write("\n".repeat(n).as_ref())
+    }
+    pub fn chain_feed(&mut self, n: usize) -> io::Result<&mut Self> {
+        self.feed(n).map(|_| self)
     }
 
     pub fn chain_control(&mut self, ctrl: &str) -> io::Result<&mut Self> {
@@ -221,32 +372,33 @@ impl<W: io::Write> Printer<W> {
         Ok(n)
     }
 
-    pub fn chain_hardware(&mut self, hw: &str) -> io::Result<&mut Self> {
-        self.hardware(hw).map(|_| self)
-    }
-    pub fn hardware(&mut self, hw: &str) -> io::Result<usize> {
-        let value = match hw {
-            "INIT" => consts::HW_INIT,
-            "SELECT" => consts::HW_SELECT,
-            "RESET" => consts::HW_RESET,
-            _ => {
-                return Err(io::Error::new(
-                    io::ErrorKind::InvalidData,
-                    format!("Invalid hardware command: {}", hw),
-                ))
-            }
-        };
-        self.write(value)
-    }
+    // TODO: I don't think we need this, maybe just write a better function?
+    // pub fn chain_hardware(&mut self, hw: &str) -> io::Result<&mut Self> {
+    //     self.hardware(hw).map(|_| self)
+    // }
+    // pub fn hardware(&mut self, hw: &str) -> io::Result<usize> {
+    //     let value = match hw {
+    //         "INIT" => consts::HW_INIT,
+    //         "SELECT" => consts::HW_SELECT,
+    //         "RESET" => consts::HW_RESET,
+    //         _ => {
+    //             return Err(io::Error::new(
+    //                 io::ErrorKind::InvalidData,
+    //                 format!("Invalid hardware command: {}", hw),
+    //             ))
+    //         }
+    //     };
+    //     self.write(value)
+    // }
 
     pub fn chain_barcode(
         &mut self,
         code: &str,
-        kind: &str,
-        position: &str,
-        font: &str,
-        width: usize,
-        height: usize,
+        kind: BarcodeType,
+        position: TextPosition,
+        font: Font,
+        width: u8,
+        height: u8,
     ) -> io::Result<&mut Self> {
         self.barcode(code, kind, position, font, width, height)
             .map(|_| self)
@@ -254,49 +406,30 @@ impl<W: io::Write> Printer<W> {
     pub fn barcode(
         &mut self,
         code: &str,
-        kind: &str,
-        position: &str,
-        font: &str,
-        width: usize,
-        height: usize,
+        kind: BarcodeType,
+        position: TextPosition,
+        font: Font,
+        width: u8,
+        height: u8,
     ) -> io::Result<usize> {
         let mut n = 0;
-        if width >= 1 || width <= 255 {
-            n += self.write(consts::BARCODE_WIDTH)?;
-        }
-        if height >= 2 || height <= 6 {
-            n += self.write(consts::BARCODE_HEIGHT)?;
-        }
+        let mut bc = Barcode{
+            width,
+            height,
+            position,
+            font,
+            kind,
+        };
+        n += self.write(&bc.set_width())?;
+        n += self.write(&bc.set_height())?;
+        n += self.write(&bc.set_text_position())?;
+        n += self.write(&bc.set_font())?;
+        n += self.write(&bc.set_barcode_type())?;
+        // This was the example in the docs, doesn't seem to actually print a Code128 barcode
+        // self.write(&[0x0a_u8, 0x7b_u8, 0x42_u8, 0x4e_u8, 0x6f_u8, 0x2e_u8, 0x7b_u8, 0x43_u8, 0x0c_u8, 0x22_u8, 0x38_u8])?;
 
-        let font = font.to_uppercase();
-        let position = position.to_uppercase();
-        let kind = kind.to_uppercase().replace('-', "_");
-        let font_value = match font.as_ref() {
-            "B" => consts::BARCODE_FONT_B,
-            // "A" | _ =>
-            _ => consts::BARCODE_FONT_A,
-        };
-        let txt_value = match position.as_ref() {
-            "OFF" => consts::BARCODE_TXT_OFF,
-            "ABV" => consts::BARCODE_TXT_ABV,
-            "BTH" => consts::BARCODE_TXT_BTH,
-            // "BLW" | _ =>
-            _ => consts::BARCODE_TXT_BLW,
-        };
-        let kind_value = match kind.as_ref() {
-            "UPC_A" => consts::BARCODE_UPC_A,
-            "UPC_E" => consts::BARCODE_UPC_E,
-            "EAN8" => consts::BARCODE_EAN8,
-            "CODE39" => consts::BARCODE_CODE39,
-            "ITF" => consts::BARCODE_ITF,
-            "NW7" => consts::BARCODE_NW7,
-            // "EAN13" | _ =>
-            _ => consts::BARCODE_EAN13,
-        };
-        n += self.write(font_value)?;
-        self.write(txt_value)?;
-        self.write(kind_value)?;
         self.write(code.as_bytes())?;
+        self.write(&[0x00_u8])?; // Need to send NULL to finish
         Ok(n)
     }
 
@@ -358,20 +491,20 @@ impl<W: io::Write> Printer<W> {
         self.write(pin_value)
     }
 
-    pub fn chain_cut(&mut self, part: bool) -> io::Result<&mut Self> {
-        self.cut(part).map(|_| self)
+    pub fn chain_full_cut(&mut self) -> io::Result<&mut Self> {
+        self.full_cut().map(|_| self)
     }
 
-    pub fn cut(&mut self, part: bool) -> io::Result<usize> {
-        let mut n_bytes = 0;
-        n_bytes += self.print(consts::EOL.repeat(3).as_ref())?;
-        let paper_cut_type = if part {
-            consts::PAPER_PART_CUT
-        } else {
-            consts::PAPER_FULL_CUT
-        };
-        n_bytes += self.write(paper_cut_type)?;
-        Ok(n_bytes)
+    pub fn full_cut(&mut self) -> io::Result<usize> {
+        self.write(&[0x0a, 0x0a, 0x0a, 0x1d, 0x56, 0x00])
+    }
+
+    pub fn chain_partial_cut(&mut self) -> io::Result<&mut Self> {
+        self.partial_cut().map(|_| self)
+    }
+
+    pub fn partial_cut(&mut self) -> io::Result<usize> {
+        self.write(&[0x0a, 0x0a, 0x0a, 0x1d, 0x56, 0x01])
     }
 
     pub fn chain_bit_image(
