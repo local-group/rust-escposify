@@ -14,6 +14,7 @@ pub enum TextPosition {
     Both = 0x03,
 }
 
+#[derive(Clone, Copy, PartialEq)]
 pub enum BarcodeType {
     UPCA = 0, // or 65?
     UPCE = 1, // or 66?
@@ -513,7 +514,7 @@ impl<W: io::Write> Printer<W> {
         // 128A (Code Set A) – ASCII characters 00 to 95 (0–9, A–Z and control codes), special characters, and FNC 1–4
         // 128B (Code Set B) – ASCII characters 32 to 127 (0–9, A–Z, a–z), special characters, and FNC 1–4
         // 128C (Code Set C) – 00–99 (encodes two digits with a single code point) and FNC1
-        if self.kind == BarcodeType::Code128 {
+        if kind == BarcodeType::Code128 {
             // self.write(&[0x7b_u8, 0x41_u8])?; // Code Set A
             self.write(&[0x7b_u8, 0x42_u8])?; // Code Set B
             // self.write(&[0x7b_u8, 0x43_u8])?; // Code Set C
