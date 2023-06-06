@@ -1,9 +1,9 @@
 extern crate tempfile;
 
-extern crate snbc;
+extern crate posify;
 
-use snbc::device::File;
-use snbc::printer::Printer;
+use posify::device::File;
+use posify::printer::Printer;
 use tempfile::NamedTempFileOptions;
 
 #[test]

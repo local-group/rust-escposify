@@ -1,7 +1,7 @@
 use std::io;
 
-use snbc::device::File;
-use snbc::printer::Printer;
+use posify::device::File;
+use posify::printer::Printer;
 
 use tempfile::NamedTempFileOptions;
 

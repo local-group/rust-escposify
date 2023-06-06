@@ -10,4 +10,4 @@ crate-type = ["dylib"]
 
 [dependencies]
 neon = "0.1"
-snbc-printer = {path = "../../../"}
+posify = {path = "../../../"}

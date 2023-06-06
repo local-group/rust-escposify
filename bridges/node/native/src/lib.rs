@@ -1,13 +1,13 @@
 #[macro_use]
 extern crate neon;
-extern crate snbc;
+extern crate posify;
 
 use neon::vm::{Call, JsResult, Module};
 use neon::js::{JsString, JsUndefined};
 
-use snbc::printer::Printer;
-use snbc::device::File;
-use snbc::device::Network;
+use posify::printer::Printer;
+use posify::device::File;
+use posify::device::Network;
 
 
 fn print(call: Call) -> JsResult<JsUndefined> {

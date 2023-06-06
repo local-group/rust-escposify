@@ -1,6 +1,6 @@
-use snbc::device::File;
-use snbc::img::Image;
-use snbc::printer::Printer;
+use posify::device::File;
+use posify::img::Image;
+use posify::printer::Printer;
 
 use image::{DynamicImage, ImageBuffer};
 use std::io;

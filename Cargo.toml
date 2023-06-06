@@ -8,7 +8,7 @@ An thermal printer driver for Rust
 This crate's minimum supported rustc version is 1.46.0.
 """
 readme = "README.md"
-keywords = ["ESC", "POS", "snbc", "printer", "driver"]
+keywords = ["ESC", "POS", "p3", "snbc", "printer"]
 # repository = "https://github.com/local-group/rust-escposify"
 license = "MIT"
 authors = ["Qian Linfeng <thewawar@gmail.com>", "Christopher Flynn <flynnguy@gmail.com>"]

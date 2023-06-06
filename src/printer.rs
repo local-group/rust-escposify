@@ -134,7 +134,7 @@ impl Barcode {
 /// # Example
 /// ```rust
 /// use std::fs::File;
-/// use snbc::printer::Printer;
+/// use posify::printer::Printer;
 /// use tempfile::NamedTempFileOptions;
 ///
 /// fn main() -> std::io::Result<()> {

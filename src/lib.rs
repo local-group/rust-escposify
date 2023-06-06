@@ -1,4 +1,4 @@
-//! snbc - A ESC/POS driver for Rust
+//! posify - A ESC/POS driver for Rust
 //!
 //! ## Examples
 //!
@@ -8,8 +8,8 @@
 //! ```rust
 //! use std::io;
 //!
-//! use snbc::device::File;
-//! use snbc::printer::Printer;
+//! use posify::device::File;
+//! use posify::printer::Printer;
 //!
 //! use tempfile::NamedTempFileOptions;
 //!
@@ -40,12 +40,12 @@
 //! use std::fs::File;
 //! use std::io;
 //!
-//! use snbc::printer::Printer;
+//! use posify::printer::Printer;
 //!
 //! fn main() -> io::Result<()> {
 //!     let device_file = File::options().append(true).open("/dev/usb/lp0").unwrap();
 //!
-//!     let file = snbc::device::File::from(device_file);
+//!     let file = posify::device::File::from(device_file);
 //!     let mut printer = Printer::new(file, None, None);
 //!
 //!     printer
