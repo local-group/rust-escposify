@@ -1,8 +1,8 @@
 [package]
-name = "snbc"
-version = "0.5.2"
+name = "posify"
+version = "0.6.2"
 description = """
-An snbc-printer driver for Rust
+An thermal printer driver for Rust
 
 ## Minimum Rust version policy (MSRV)
 This crate's minimum supported rustc version is 1.46.0.
@@ -11,7 +11,7 @@ readme = "README.md"
 keywords = ["ESC", "POS", "snbc", "printer", "driver"]
 # repository = "https://github.com/local-group/rust-escposify"
 license = "MIT"
-authors = ["Qian Linfeng <thewawar@gmail.com>"]
+authors = ["Qian Linfeng <thewawar@gmail.com>", "Christopher Flynn <flynnguy@gmail.com>"]
 edition = "2021"
 
 [features]

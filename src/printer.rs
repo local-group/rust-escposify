@@ -31,11 +31,21 @@ pub enum BarcodeType {
 }
 
 pub enum Font {
-    Standard,
-    Compressed,
+    Standard, // As defined in SNBC printer docs
+    Compressed, // As defined in SNBC printer docs
+    FontA, // As defined in P3 printer docs
+    FontB, // As defined in P3 printer docs
+}
+
+#[derive(Clone, Copy)]
+pub enum SupportedPrinters {
+    SNBC,
+    P3,
+    Unknown, // Adding to allow _ no not raise warnings to make adding printers easier
 }
 
 pub struct Barcode {
+    pub printer: SupportedPrinters,
     pub width: u8, // 2 <= n <= 6
     pub height: u8, // 1 <= n <= 255
     pub font: Font,
@@ -45,18 +55,51 @@ pub struct Barcode {
 }
 
 impl Barcode {
-    pub fn set_width(&mut self) -> [u8; 3] {
-        if self.width >= 2 && self.width <= 6 {
-            return [0x1d, 0x77, self.width];
+    pub fn set_width(&mut self) -> io::Result<[u8; 3]> {
+        // P3 notes:
+        // docs describe the range of the width as 0x01 <= n <= 0x06
+        // but then has a table describing values of n < 0x80 and n > 0x80
+        // up to 0x86 🤨
+        //
+        // Currently limiting to 1 <= n <= 6 but we might be able to change that
+        match self.printer {
+            SupportedPrinters::SNBC => {
+                if self.width >= 2 && self.width <= 6 {
+                    return Ok([0x1d, 0x77, self.width]);
+                }
+                Ok([0x1d, 0x77, 0x02]) // 2 is the default according to docs
+            },
+            SupportedPrinters::P3 => {
+                if self.width >= 1 && self.width <= 6 {
+                    return Ok([0x1d, 0x77, self.width]);
+                }
+                Ok([0x1d, 0x77, 0x03]) // 3 is the default according to docs
+
+            },
+            _ => return Err(io::Error::new(
+                    io::ErrorKind::Unsupported,
+                    format!("Command not supported by printer"),
+                )),
+
         }
-        [0x1d, 0x77, 0x02] // 2 is the default according to docs
     }
 
+    /// Sets the height of the 1D barcode
+    /// n specified the number of vertical dots
+    ///
+    /// P3 default is 0xA2 (20.25mm)
+    /// on P3 at least, 8 dots == 1mm
+    /// so mm * 8 = height in dots
+    ///
+    /// So 20.25 * 8 = 162 which is 0xA2 in hex
     pub fn set_height(&mut self) -> [u8; 3] {
         [0x1d, 0x68, self.height as u8]
     }
 
+    /// Selects the print position of HRI (Human Readable Interpretation)
+    /// characters when printing a 1D barcode
     pub fn set_text_position(&mut self) -> [u8; 3] {
+        // Codes are the same for SNBC printer and S3
         match self.position {
             TextPosition::Off => [0x1d, 0x48, 0x00],
             TextPosition::Above => [0x1d, 0x48, 0x01],
@@ -67,16 +110,20 @@ impl Barcode {
 
     pub fn set_font(&mut self) -> [u8; 3] {
         match self.font {
+            // FontB and Compressed are the same codes, just different printers
+            // define them differently so I figured it would be easiest to just
+            // define it twice.
             Font::Compressed => [0x1d, 0x66, 0x01],
-            _ => [0x1d, 0x66, 0x00], // Default to standard font
+            Font::FontB => [0x1d, 0x66, 0x01],
+            _ => [0x1d, 0x66, 0x00], // Default to standard font or FontA
         }
     }
 
     pub fn set_barcode_type(&mut self) -> [u8; 3] {
         match self.kind {
             BarcodeType::EAN13 => [0x1d, 0x6b, 0x02],
-            BarcodeType::Code128 => [0x1d, 0x6b, 0x49],
-            _ => [0x1d, 0x6b, 0x02],
+            BarcodeType::Code128 => [0x1d, 0x6b, 0x08],
+            _ => [0x1d, 0x6b, 0x02], // Default to EAN13?
         }
     }
 
@@ -94,7 +141,7 @@ impl Barcode {
 ///     // TODO: Fix this example as NamedTempFileOptions is out of date
 ///     let tempf = tempfile::NamedTempFileOptions::new().create().unwrap();
 ///     let file = File::from(tempf);
-///     let mut printer = Printer::new(file, None, None);
+///     let mut printer = Printer::new(file, None, None, SupportedPrinters::P3);
 ///
 ///     printer
 ///       .chain_size(0,0)?
@@ -107,14 +154,16 @@ pub struct Printer<W: io::Write> {
     writer: io::BufWriter<W>,
     codec: EncodingRef,
     trap: EncoderTrap,
+    printer: SupportedPrinters,
 }
 
 impl<W: io::Write> Printer<W> {
-    pub fn new(writer: W, codec: Option<EncodingRef>, trap: Option<EncoderTrap>) -> Printer<W> {
+    pub fn new(writer: W, codec: Option<EncodingRef>, trap: Option<EncoderTrap>, printer: SupportedPrinters) -> Printer<W> {
         Printer {
             writer: io::BufWriter::new(writer),
             codec: codec.unwrap_or(UTF_8 as EncodingRef),
             trap: trap.unwrap_or(EncoderTrap::Replace),
+            printer: printer,
         }
     }
 
@@ -148,13 +197,15 @@ impl<W: io::Write> Printer<W> {
     /// ESC @ - Initialize printer, clear data in print buffer and set print mode
     /// to the default mode when powered on.
     ///
+    /// Seems to be the same for SNBC and P3 printers
+    ///
     /// ASCII    ESC   @
     /// Hex      1b   40
     /// Decimal  27   64
     /// Notes:
     ///   - The data in the receive buffer is not cleared
     ///   - The macro definition is not cleared
-    ///   - The NV bitmap data is not cleared
+    ///   - The NV bitmap data is not cleared (SNBC, not sure about P3)
     pub fn hwinit(&mut self) -> io::Result<usize> {
         self.write(&[0x1b, 0x40])
     }
@@ -164,6 +215,8 @@ impl<W: io::Write> Printer<W> {
 
     /// ESC = n - Enable/Disable Printer
     /// Docs describe this as "Select printer to which host computer sends data"
+    ///
+    /// SNBC:
     ///
     /// ASCII    ESC   =  n
     /// Hex      1b   3d  n
@@ -184,15 +237,40 @@ impl<W: io::Write> Printer<W> {
     /// this command.
     ///
     /// Default: n = 1
+    ///
+    /// P3:
+    /// Select the device to which the host computer sends data, using n as follows:
+    ///
+    /// |      n       | Function        |
+    /// |--------------|-----------------|
+    /// |  0x01, 0x03  | Device enabled  |
+    /// |     0x02     | Device disabled |
+    ///
+    /// Default: n = 0x01
+
     pub fn enable(&mut self) -> io::Result<usize> {
-        self.write(&[0x1b, 0x3d, 0x01])
+        match self.printer {
+            SupportedPrinters::SNBC => self.write(&[0x1b, 0x3d, 0x01]),
+            SupportedPrinters::P3 => self.write(&[0x1b, 0x3d, 0x01]),
+            _ => return Err(io::Error::new(
+                    io::ErrorKind::Unsupported,
+                    format!("Command not supported by printer"),
+                )),
+        }
     }
     pub fn chain_enable(&mut self) -> io::Result<&mut Self> {
         self.enable().map(|_| self)
     }
 
     pub fn disable(&mut self) -> io::Result<usize> {
-        self.write(&[0x1b, 0x3d, 0x00])
+        match self.printer {
+            SupportedPrinters::SNBC => self.write(&[0x1b, 0x3d, 0x00]),
+            SupportedPrinters::P3 => self.write(&[0x1b, 0x3d, 0x02]),
+            _ => return Err(io::Error::new(
+                    io::ErrorKind::Unsupported,
+                    format!("Command not supported by printer"),
+                )),
+        }
     }
     pub fn chain_disable(&mut self) -> io::Result<&mut Self> {
         self.disable().map(|_| self)
@@ -414,20 +492,32 @@ impl<W: io::Write> Printer<W> {
     ) -> io::Result<usize> {
         let mut n = 0;
         let mut bc = Barcode{
+            printer: self.printer,
             width,
             height,
             position,
             font,
             kind,
         };
-        n += self.write(&bc.set_width())?;
+        n += self.write(&bc.set_width()?)?;
         n += self.write(&bc.set_height())?;
         n += self.write(&bc.set_text_position())?;
         n += self.write(&bc.set_font())?;
         n += self.write(&bc.set_barcode_type())?;
-        // This was the example in the docs, doesn't seem to actually print a Code128 barcode
-        // self.write(&[0x0a_u8, 0x7b_u8, 0x42_u8, 0x4e_u8, 0x6f_u8, 0x2e_u8, 0x7b_u8, 0x43_u8, 0x0c_u8, 0x22_u8, 0x38_u8])?;
 
+        // Code128 requires the Code Set to be sent before the barcode text
+        //
+        // Currently we just default to Code B, but we might want to think about
+        // allowing the selection of the code set
+        //
+        // 128A (Code Set A) – ASCII characters 00 to 95 (0–9, A–Z and control codes), special characters, and FNC 1–4
+        // 128B (Code Set B) – ASCII characters 32 to 127 (0–9, A–Z, a–z), special characters, and FNC 1–4
+        // 128C (Code Set C) – 00–99 (encodes two digits with a single code point) and FNC1
+        if self.kind == BarcodeType::Code128 {
+            // self.write(&[0x7b_u8, 0x41_u8])?; // Code Set A
+            self.write(&[0x7b_u8, 0x42_u8])?; // Code Set B
+            // self.write(&[0x7b_u8, 0x43_u8])?; // Code Set C
+        }
         self.write(code.as_bytes())?;
         self.write(&[0x00_u8])?; // Need to send NULL to finish
         Ok(n)
@@ -496,7 +586,14 @@ impl<W: io::Write> Printer<W> {
     }
 
     pub fn full_cut(&mut self) -> io::Result<usize> {
-        self.write(&[0x0a, 0x0a, 0x0a, 0x1d, 0x56, 0x00])
+        match self.printer {
+            SupportedPrinters::SNBC => self.write(&[0x0a, 0x0a, 0x0a, 0x1d, 0x56, 0x00]),
+            // p3 seems to only support partial cut
+            _ => return Err(io::Error::new(
+                    io::ErrorKind::Unsupported,
+                    format!("Command not supported by printer"),
+                )),
+        }
     }
 
     pub fn chain_partial_cut(&mut self) -> io::Result<&mut Self> {
@@ -504,7 +601,14 @@ impl<W: io::Write> Printer<W> {
     }
 
     pub fn partial_cut(&mut self) -> io::Result<usize> {
-        self.write(&[0x0a, 0x0a, 0x0a, 0x1d, 0x56, 0x01])
+        match self.printer {
+            SupportedPrinters::SNBC => self.write(&[0x0a, 0x0a, 0x0a, 0x1d, 0x56, 0x01]),
+            SupportedPrinters::P3 => self.write(&[0x0a, 0x0a, 0x0a, 0x1b, 0x6d]),
+            _ => return Err(io::Error::new(
+                    io::ErrorKind::Unsupported,
+                    format!("Command not supported by printer"),
+                )),
+        }
     }
 
     pub fn chain_bit_image(
