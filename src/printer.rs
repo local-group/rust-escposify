@@ -7,7 +7,7 @@ use encoding::types::{EncoderTrap, EncodingRef};
 use crate::consts;
 use crate::img::Image;
 
-/// Allows for printing to a [::device]
+/// Allows for printing to a [device][crate::device]
 ///
 /// # Example
 /// ```rust
