@@ -56,6 +56,29 @@
 //!         .flush()
 //! }
 //! ```
+//!
+//! ### Writing to the stdout
+//!
+//! Understandably not all options work here (alignment, fonts, chain_cut etc.)
+//! but for quick debugging and prototyping this is a good option
+//! as it saves tons of time when working on the logic of your implementation.
+//!
+//! ```rust
+//! use std::io::{self, stdout};
+//! use escposify::printer::Printer;
+//!
+//! fn main() -> io::Result<()> {
+//!
+//!     let mut printer = Printer::new(stdout(), None, None);
+//!
+//!     printer
+//!         .chain_feed(2)?
+//!         .chain_text("The quick brown fox jumps over the lazy dog")?
+//!         .chain_text("敏捷的棕色狐狸跳过懒狗")?
+//!         .chain_feed(1)?
+//!         .flush()
+//! }
+//! ```
 
 pub mod consts;
 pub mod device;
