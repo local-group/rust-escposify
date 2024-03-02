@@ -3,7 +3,18 @@ use std::io;
 use std::net;
 use std::path;
 
-pub struct Usb {}
+use rusb::Direction;
+use rusb::TransferType;
+use rusb::UsbContext;
+use rusb::{Context, DeviceHandle};
+
+pub struct Usb {
+    _vendor_id: u16,
+    _product_id: u16,
+    connection: DeviceHandle<Context>,
+    endpoint: u8,
+}
+
 pub struct Serial {}
 
 #[derive(Debug)]
@@ -72,5 +83,106 @@ impl<W: io::Write> io::Write for File<W> {
 
     fn flush(&mut self) -> io::Result<()> {
         self.fobj.flush()
+    }
+}
+
+impl Usb {
+    /// Create a new USB device.
+    /// # Example
+    /// ```rust
+    /// use std::io;
+    /// use escposify::device::Usb;
+    ///
+    /// let product_id = 0xa700;
+    /// let vendor_id = 0x0525;
+    /// let usb = Usb::new(vendor_id, product_id)?;
+    /// let mut printer = Printer::new(usb, None, None);
+    /// ```
+    pub fn new(vendor_id: u16, product_id: u16) -> io::Result<Usb> {
+        let context = Context::new().unwrap();
+        let devices = context.devices().unwrap();
+
+        for device in devices.iter() {
+            let device_desc = device
+                .device_descriptor()
+                .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+
+            if device_desc.vendor_id() == vendor_id && device_desc.product_id() == product_id {
+                let config_descriptor = device
+                    .active_config_descriptor()
+                    .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+
+                let endpoint = config_descriptor
+                    .interfaces()
+                    .flat_map(|interface| interface.descriptors())
+                    .flat_map(|descriptor| descriptor.endpoint_descriptors())
+                    .find_map(|endpoint| {
+                        if let (TransferType::Bulk, Direction::Out) =
+                            (endpoint.transfer_type(), endpoint.direction())
+                        {
+                            Some(endpoint.number())
+                        } else {
+                            None
+                        }
+                    })
+                    .ok_or_else(|| {
+                        io::Error::new(io::ErrorKind::Other, "No suitable endpoint found")
+                    })?;
+
+                match device.open() {
+                    Ok(mut dvc) => {
+                        if let Ok(active) = dvc.kernel_driver_active(0) {
+                            if active {
+                                match dvc.detach_kernel_driver(0) {
+                                    Ok(_) => (),
+                                    Err(e) => {
+                                        println!("Error detaching kernel driver: {:?}", e);
+                                        return Err(io::Error::new(io::ErrorKind::Other, e));
+                                    }
+                                };
+                            }
+                        } else {
+                            return Err(io::Error::new(
+                                io::ErrorKind::Other,
+                                "Error checking kernel driver",
+                            ));
+                        };
+
+                        match dvc.claim_interface(0) {
+                            Ok(_) => {
+                                return Ok(Usb {
+                                    _vendor_id: vendor_id,
+                                    _product_id: product_id,
+                                    connection: dvc,
+                                    endpoint,
+                                });
+                            }
+                            Err(e) => {
+                                return Err(io::Error::new(io::ErrorKind::Other, e));
+                            }
+                        };
+                    }
+                    Err(_) => return Err(io::Error::new(io::ErrorKind::Other, "Device busy")),
+                }
+            }
+        }
+
+        Err(io::Error::new(io::ErrorKind::Other, "USB not found"))
+    }
+}
+
+impl io::Write for Usb {
+    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+        match self
+            .connection
+            .write_bulk(self.endpoint, buf, std::time::Duration::from_secs(5))
+        {
+            Ok(_) => Ok(buf.len()),
+            Err(e) => Err(io::Error::new(io::ErrorKind::Other, e)),
+        }
+    }
+
+    fn flush(&mut self) -> io::Result<()> {
+        Ok(())
     }
 }
