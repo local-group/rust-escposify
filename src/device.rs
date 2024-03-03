@@ -99,8 +99,10 @@ impl Usb {
     /// let mut printer = Printer::new(usb, None, None);
     /// ```
     pub fn new(vendor_id: u16, product_id: u16) -> io::Result<Usb> {
-        let context = Context::new().unwrap();
-        let devices = context.devices().unwrap();
+        let context = Context::new().map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+        let devices = context
+            .devices()
+            .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
 
         for device in devices.iter() {
             let device_desc = device
@@ -136,7 +138,6 @@ impl Usb {
                                 match dvc.detach_kernel_driver(0) {
                                     Ok(_) => (),
                                     Err(e) => {
-                                        println!("Error detaching kernel driver: {:?}", e);
                                         return Err(io::Error::new(io::ErrorKind::Other, e));
                                     }
                                 };
@@ -148,19 +149,15 @@ impl Usb {
                             ));
                         };
 
-                        match dvc.claim_interface(0) {
-                            Ok(_) => {
-                                return Ok(Usb {
-                                    _vendor_id: vendor_id,
-                                    _product_id: product_id,
-                                    connection: dvc,
-                                    endpoint,
-                                });
-                            }
-                            Err(e) => {
-                                return Err(io::Error::new(io::ErrorKind::Other, e));
-                            }
-                        };
+                        return dvc
+                            .claim_interface(0)
+                            .map(|_| Usb {
+                                _vendor_id: vendor_id,
+                                _product_id: product_id,
+                                connection: dvc,
+                                endpoint,
+                            })
+                            .map_err(|e| io::Error::new(io::ErrorKind::Other, e));
                     }
                     Err(_) => return Err(io::Error::new(io::ErrorKind::Other, "Device busy")),
                 }
