@@ -89,13 +89,14 @@ impl<W: io::Write> io::Write for File<W> {
 impl Usb {
     /// Create a new USB device.
     /// # Example
-    /// ```rust
+    /// ```no_run
     /// use std::io;
     /// use escposify::device::Usb;
+    /// use escposify::printer::Printer;
     ///
     /// let product_id = 0xa700;
     /// let vendor_id = 0x0525;
-    /// let usb = Usb::new(vendor_id, product_id)?;
+    /// let usb = Usb::new(vendor_id, product_id).unwrap();
     /// let mut printer = Printer::new(usb, None, None);
     /// ```
     pub fn new(vendor_id: u16, product_id: u16) -> io::Result<Usb> {

@@ -82,7 +82,7 @@
 //!
 //! ### Printing to a printer via USB
 //!
-//! ```rust
+//! ```no_run
 //! use std::io;
 //! use escposify::printer::Printer;
 //! use escposify::device::Usb;
