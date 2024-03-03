@@ -135,12 +135,9 @@ impl Usb {
                     Ok(mut dvc) => {
                         if let Ok(active) = dvc.kernel_driver_active(0) {
                             if active {
-                                match dvc.detach_kernel_driver(0) {
-                                    Ok(_) => (),
-                                    Err(e) => {
-                                        return Err(io::Error::new(io::ErrorKind::Other, e));
-                                    }
-                                };
+                                if let Err(e) = dvc.detach_kernel_driver(0) {
+                                    return Err(io::Error::new(io::ErrorKind::Other, e));
+                                }
                             }
                         } else {
                             return Err(io::Error::new(
