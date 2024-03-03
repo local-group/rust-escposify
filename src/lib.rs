@@ -79,6 +79,34 @@
 //!         .flush()
 //! }
 //! ```
+//!
+//! ### Printing to a printer via USB
+//!
+//! ```rust
+//! use std::io;
+//! use escposify::printer::Printer;
+//! use escposify::device::Usb;
+//!
+//! fn main() -> io::Result<()> {
+//!     let product_id = 0xa700;
+//!     let vendor_id = 0x0525;
+//!     let usb = Usb::new(vendor_id, product_id)?;
+//!
+//!     let mut printer = Printer::new(usb, None, None);
+//!
+//!     printer
+//!         .chain_feed(5)?
+//!         .chain_font("C")?
+//!         .chain_align("lt")?
+//!         .chain_style("bu")?
+//!         .chain_size(0, 0)?
+//!         .chain_text("The quick brown fox jumps over the lazy dog")?
+//!         .chain_barcode("12345678", "EAN8", "", "", 0, 0)?
+//!         .chain_feed(5)?
+//!         .chain_cut(false)?
+//!         .flush()
+//! }
+//! ```
 
 pub mod consts;
 pub mod device;
