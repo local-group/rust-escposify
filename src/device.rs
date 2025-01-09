@@ -57,6 +57,7 @@ impl<W: io::Write> File<W> {
         let fobj = fs::OpenOptions::new()
             .write(true)
             .create(true)
+            .truncate(true)
             .open(&path)?;
         Ok(File { fobj })
     }
@@ -133,7 +134,7 @@ impl Usb {
                     })?;
 
                 match device.open() {
-                    Ok(mut dvc) => {
+                    Ok(dvc) => {
                         if let Ok(active) = dvc.kernel_driver_active(0) {
                             if active {
                                 if let Err(e) = dvc.detach_kernel_driver(0) {

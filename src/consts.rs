@@ -1,4 +1,4 @@
-/**
+/*!
  * ESC/POS Commands (Constants)
  */
 
